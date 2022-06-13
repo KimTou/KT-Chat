@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>MyChat</title>
+    <link rel="stylesheet" href="css/chat.css">
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/jquery.cookie.min.js"></script>
+    <script type="text/javascript" src="js/function.js"></script>
+
+</head>
+<body onload="refresh(getQueryVariable('type'), getQueryVariable('boxId'))">
+
+<div class="main">
+    <div class="top">
+        <div class="top-left">
+            <div class="header"></div>
+            <div class="search">
+                <input type="text" id="mine">
+                <i class="icon-sear"></i>
+            </div>
+        </div>
+        <div class="top-type">
+            <a href="friend.html" class="news icon-site"></a>
+            <a href="request.html" class="friend icon-site"></a>
+            <a href="group.html" class="file icon-site"></a>
+        </div>
+    </div>
+
+    <div class="box">
+        <div class="chat-list" id="chat-list">
+
+        </div>
+
+        <div class="box-right" id="chat-content">
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

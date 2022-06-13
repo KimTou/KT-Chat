@@ -1,0 +1,140 @@
+<html lang="en">
+
+<head>
+    <title>好友请求</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/jquery.cookie.min.js"></script>
+
+</head>
+<body onload="refresh()">
+
+<!-- 反色导航条组件  -->
+<nav class="navbar navbar-inverse" style="margin-top: 0px;">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">MyChat</a>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <li>
+                    <a href="javascript:void(0)" onclick="back()">返回聊天界面</a>
+                </li>
+                <li>
+                    <a href="friend.html">好友管理</a>
+                </li>
+                <li>
+                    <a href="request.html">好友请求</a>
+                </li>
+                <li>
+                    <a href="group.html">群聊管理</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+
+    <h2>请求列表</h2><br>
+
+    <table border="1" class="table table-bordered table-hover">
+
+        <tr class="info">
+            <th>用户id</th>
+            <th>用户名</th>
+            <th>操作</th>
+        </tr>
+        <tbody id="t_body">
+
+        </tbody>
+
+    </table>
+</div>
+
+<script>
+    let serverUrl = 'http://localhost:8080/'
+
+    function refresh(){
+        $.ajax({
+            url: serverUrl + "user-info/friend/getRequest",
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            data: {
+                //userId:$.cookie('userId'),
+                userId: window.localStorage.getItem("userId")
+            },
+            async: true,
+            success: function (data) {
+                if (data.data != null) {
+                    var table = "";
+                    var li = "";
+                    var list = data.data;
+                    $.each(list,function (i,rs) {
+                        table += "<tr>" +
+                            "<td>" + list[i].userId + "</td>" +
+                            "<td>" + list[i].userName + "</td>" +
+                            "<td><button class='btn btn-success' onclick='agree(id)' id='"+ list[i].userId +"'>同意</button>&nbsp;" +
+                            "<button class='btn btn-danger' onclick='refuse(id)' id="+list[i].userId+ ">拒绝</button></td>"+
+                            "</tr>";
+
+                    })
+                    $("#t_body").html(table);
+                    $("#lis").html(li);
+                }
+            }
+        })
+    }
+
+    function back(){
+        $(window).attr("location", serverUrl + "function.html?"+"type=0&boxId=0") ;
+    }
+
+    //添加好友
+    function agree(addId){
+        $.ajax({
+            url: serverUrl + "user-info/friend/agreeRequest",
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            data: {
+                userId:$.cookie('userId'),
+                addId: addId
+            },
+            async: true,
+            success: function (data) {
+                refresh();
+            }
+        })
+    }
+
+    function refuse(addId){
+        $.ajax({
+            url: serverUrl + "user-info/friend/refuseRequest",
+            method: "POST",
+            data: {
+                userId:$.cookie('userId'),
+                addId: addId
+            },
+            async: true,
+            success: function (data) {
+                refresh();
+            }
+        })
+    }
+
+</script>
+
+</body>
+</html>

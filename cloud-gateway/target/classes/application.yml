@@ -1,0 +1,44 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: cloud-gateway
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848  #注册进Nacos
+    sentinel:
+      transport:
+        port: 9999   #指定和Sentinel控制台交互的端口
+        dashboard: 127.0.0.1:8888  #Sentinel控制台服务地址
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origins: "*"
+            allowed-headers: "*"
+            allow-credentials: true
+            allowed-methods: "*"
+      discovery:
+        locator:
+          enabled: true  #开启从注册中心动态创建路由的功能，利用微服务名进行路由
+      routes:   #路由配置
+        - id: user-info-service    #路由的ID，没有固定规则但要求唯一，建议与服务名对应
+          uri: lb://user-info #匹配后提供服务的路由地址
+          predicates:
+            - Path=/user-info/**
+        - id: chat-service
+          uri: lb://chat-service
+          predicates:
+            - Path=/chat/**
+        - id: netty-websocket
+          uri: lb:ws://netty-service/ws
+          predicates:
+            - Path=/ws/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'

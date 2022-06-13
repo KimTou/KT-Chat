@@ -1,0 +1,17 @@
+server:
+  port: 8031
+
+spring:
+  application:
+    name: connector
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848  #注册进Nacos
+
+rocketmq:
+  namesrv:
+    address: localhost:9876
+
+netty:
+  connector-url: localhost_9001

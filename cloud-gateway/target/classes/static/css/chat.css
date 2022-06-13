@@ -1,0 +1,402 @@
+
+
+.area{
+    position: relative;
+    margin-top: 200px;
+
+}
+
+* {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 14px;
+    text-decoration: none;
+    color: black;
+    outline: none;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+}
+
+.main {
+
+    height: 800px;
+    width: 1005px;
+    margin: auto;
+    box-shadow: 0 0 3px 5px #e1e1e1;
+}
+
+.main .top {
+    width: 1005px;
+    height: 60px;
+    background-color: #3ba3f2;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.main .top .top-left {
+    height: 100%;
+    width: 200px;
+    float: left;
+    position: relative;
+}
+
+.main .top .top-left .header {
+    height: 48px;
+    width: 48px;
+    border-radius: 50%;
+    background-image: url("../img/play.png");
+    line-height: 60px;
+    display: inline-block;
+    margin: 6px;
+    border: 1px solid transparent;
+
+    background-size: 100% 100%;
+}
+
+.main .top .top-left .header:hover {
+    border: 1px solid white;
+}
+
+.main .top .top-left .search {
+    display: inline-block;
+    height: 30px;
+    position: absolute;
+    margin: 17px 14px;
+}
+
+.main .top .top-left .search input {
+    display: inline-block;
+    width: 110px;
+    height: 30px;
+    border-radius: 40px;
+    border: 1px solid ghostwhite;
+    text-indent: 40px;
+    background-color: #3ba3f2;
+
+}
+
+.main .top .top-left .search input:hover {
+    border: 1px solid white;
+}
+
+/*.main .top .top-left .search .icon-sear {
+
+    background-image: url("../img/play.png");
+    background-size: 100% 100%;
+    height: 30px;
+    width: 30px;
+    position: absolute;
+    margin-top: -31px;
+    margin-left: 7px;
+
+}*/
+
+.main .top .top-type {
+    height: 100%;
+    width: 200px;
+    float: left;
+    margin-left: 200px;
+}
+
+.main .top .top-type a.icon-site {
+    display: inline-block;
+    height: 40px;
+    width: 40px;
+    background-size: 100% 100%;
+    margin: 10px 11px;
+}
+
+.main .top .top-type .news {
+    background-image: url("../img/user.png");
+
+}
+
+.main .top .top-type .friend {
+    background-image: url("../img/send.png");
+
+}
+
+.main .top .top-type .file {
+    background-image: url("../img/comment-outline.png");
+
+}
+
+.main .top .top-right {
+    height: 100%;
+    width: 200px;
+    float: right;
+}
+
+.main .top .top-right i.ic-same {
+    display: inline-block;
+    height: 20px;
+    width: 20px;
+    background-size: 100% 100%;
+    margin: 19px 7px;
+}
+
+.main .top .top-right i.ic-same.ic-menu {
+    margin-left: 48px;
+}
+
+.main .top .top-right .ic-menu {
+
+    background-image: url("../img/send.png");
+}
+
+.main .top .top-right .ic-menu:hover {
+    background-image: url("../img/send.png");
+}
+
+.main .top .top-right .ic-shrink {
+    background-image: url("../img/send.png");
+}
+
+.main .top .top-right .ic-shrink:hover {
+    background-image: url("../img/send.png");
+}
+
+.main .top .top-right .ic-boost {
+    background-image: url("../img/send.png");
+}
+
+.main .top .top-right .ic-boost:hover {
+    background-image: url("../img/send.png")
+}
+
+.main .top .top-right .ic-close {
+    background-image: url("../img/send.png");
+}
+
+.main .top .top-right .ic-close:hover {
+    background-image: url("../img/send.png");
+}
+
+.main .box {
+    width: 100%;
+    height: 740px;
+
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.main .box .chat-list {
+    float: left;
+    width: 250px;
+    height: 100%;
+    background-color: #f4f4f4;
+}
+
+.main .box .chat-list .list-box {
+    height: 80px;
+    width: 250px;
+}
+
+.main .box .chat-list .list-box.select {
+    background-color: #dbdbdb;
+}
+
+.main .box .chat-list .list-box:hover {
+    background-color: #dbdbdb;
+}
+
+.main .box .chat-list .list-box img.chat-head {
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    border: 1px solid #f4f4f4;
+    margin: 15px 10px;
+}
+
+.main .box .chat-list .list-box .chat-rig {
+    float: right;
+    height: 50px;
+    width: 178px;
+    margin: 15px 0;
+}
+
+.main .box .chat-list .list-box .chat-rig .title {
+    font-weight: 600;
+    font-size: 17px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.main .box .chat-list .list-box .chat-rig .text {
+    font-size: 12px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: #6C6C6C;
+}
+
+.main .box .box-right {
+    float: left;
+    width: 750px;
+    height: 100%;
+}
+
+.main .box .box-right .recvfrom {
+    width: 752px;
+    height: 560px;
+
+}
+
+.main .box .box-right .recvfrom .nav-top {
+    height: 45px;
+    width: 100%;
+}
+
+.main .box .box-right .recvfrom .nav-top p {
+    line-height: 45px;
+    font-size: 18px;
+    font-weight: 600;
+    margin-left: 25px;
+}
+
+.main .box .box-right .recvfrom .news-top {
+    height: 510px;
+    border-top: 1px solid #6C6C6C;
+    border-bottom: 1px solid #6C6C6C;
+    overflow-y: scroll;
+}
+
+.main .box .box-right .recvfrom .news-top ul {
+    height: 100%;
+    width: 100%;
+}
+
+.main .box .box-right .recvfrom .news-top ul li {
+    margin: 10px;
+    min-height: 80px;
+    position: relative;
+    overflow: hidden;
+
+}
+
+.main .box .box-right .recvfrom .news-top ul li .avatar img {
+    height: 30px;
+    width: 30px;
+    border-radius: 50%;
+}
+
+.main .box .box-right .recvfrom .news-top ul li .msg {
+    top: -10px;
+    margin: 8px;
+    min-height: 80px;
+}
+
+.main .box .box-right .recvfrom .news-top ul li::after {
+    clear: both;
+    content: "";
+    display: inline-block;
+}
+
+.main .box .box-right .recvfrom .news-top ul li .msg .msg-text {
+    background-color: #6C6C6C;
+    border-radius: 5px;
+    padding: 8px;
+}
+
+.msg-text-other {
+    background-color: #e9f1df;
+    border-radius: 5px;
+    padding: 8px;
+}
+
+.msg-text-self {
+    background-color: #a6e566;
+    border-radius: 5px;
+    padding: 8px;
+}
+
+.main .box .box-right .recvfrom .news-top ul li .msg time {
+    float: right;
+    color: #ccc;
+}
+
+.main .box .box-right .recvfrom .news-top ul li.other .avatar {
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.main .box .box-right .recvfrom .news-top ul li.other .msg {
+    position: absolute;
+    left: 40px;
+
+}
+
+.main .box .box-right .recvfrom .news-top ul li.self .avatar {
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+.main .box .box-right .recvfrom .news-top ul li.self .msg {
+    position: absolute;
+    right: 38px;
+}
+
+.main .box .box-right .sendto {
+    width: 752px;
+    height: 180px;
+}
+
+.main .box .box-right .sendto .but-nav {
+    height: 40px;
+}
+
+.main .box .box-right .sendto .but-nav ul li {
+    float: left;
+    height: 22px;
+    width: 22px;
+    margin: 7px 15px;
+    background-size: 100% 100%;
+}
+
+.main .box .box-right .sendto .but-nav ul li:hover {
+    background-color: #dbdbdb;
+}
+
+.main .box .box-right .sendto .but-nav ul li.font {
+    background-image: url("../img/send.png");
+}
+
+.main .box .box-right .sendto .but-nav ul li.face {
+    background-image: url("../img/send.png");
+}
+
+.main .box .box-right .sendto .but-nav ul li.cut {
+    background-image: url("../img/send.png");
+}
+
+.main .box .box-right .sendto .but-nav ul li.page {
+    background-image: url("../img/send.png");
+}
+
+.main .box .box-right .sendto .but-nav ul li.old {
+    background-image: url("../img/send.png");
+}
+
+.main .box .box-right .sendto .but-text textarea {
+    border: none;
+    font-size: 22px;
+    margin-left: 20px;
+    width: 732px;
+    height: 100px;
+}
+
+.main .box .box-right .sendto .but-text .button {
+    float: right;
+    padding: 5px 25px;
+    background-color: #3ba3f2;
+    margin-right: 20px;
+}
+
+

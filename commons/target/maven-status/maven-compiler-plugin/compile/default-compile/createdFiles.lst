@@ -1,0 +1,16 @@
+cn\tojintao\model\entity\Message.class
+cn\tojintao\common\MsgActionEnum.class
+cn\tojintao\model\entity\GroupMessage.class
+cn\tojintao\model\entity\User.class
+cn\tojintao\model\protocol\ChatMsg.class
+cn\tojintao\util\DateUtil.class
+cn\tojintao\model\vo\BoxVo.class
+cn\tojintao\common\ChatTypeEnum.class
+cn\tojintao\common\CodeEnum.class
+cn\tojintao\model\vo\UserVo.class
+cn\tojintao\util\SpringUtil.class
+cn\tojintao\model\entity\Group.class
+cn\tojintao\model\protocol\DataContent.class
+cn\tojintao\model\dto\ResultInfo.class
+cn\tojintao\model\vo\MessageVo.class
+cn\tojintao\util\RedissonUtil.class

@@ -1,0 +1,72 @@
+<html>
+<head>
+    <title>聊天界面</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container" style="text-align: center">
+
+    <h2>登录</h2>
+
+    <br><br><br>
+
+    <form class="form-horizontal" method="post">
+
+        <div class="form-group">
+            <label for="userName" class="col-sm-3 control-label">用户名</label>
+            <div class="col-xs-6">
+                <input type="text" class="form-control" id="userName" name="userName" placeholder="用户名">
+            </div>
+        </div>
+        <br><br>
+        <div class="form-group">
+            <label for="password" class="col-sm-3 control-label">密码</label>
+            <div class="col-xs-6">
+                <input type="password" class="form-control" id="password" name="password" placeholder="密码">
+            </div>
+        </div>
+        <br><br>
+        <button id="login_btn" type="button" class="btn btn-success btn-lg">提交</button>
+    </form>
+</div>
+
+<script>
+
+    let serverUrl = 'http://localhost:8080/'
+
+    let lg_btn = document.getElementById('login_btn')
+
+    lg_btn.onclick = function () {
+        $.ajax({
+            url: serverUrl + "user-info/user/login",
+            method: "POST",
+            contentType: "application/x-www-form-urlencoded",
+            data: {
+                userName: document.getElementById('userName').value,
+                password: document.getElementById('password').value,
+            },
+            async: true,
+            success: function (data) {
+                if (data.code == 200) {
+                    window.localStorage.setItem("accessToken", data.data.accessToken);
+                    window.localStorage.setItem("refreshToken", data.data.refreshToken);
+                    window.localStorage.setItem("userId", data.data.user.userId);
+                    window.localStorage.setItem("userName", data.data.user.userName);
+                    window.localStorage.setItem("avatar", data.data.user.avatar);
+                    alert(data.msg + "\n欢迎进入MyChat:" + data.data.user.userName);
+                    $(window).attr("location", serverUrl + "function.html?"+"type=0&boxId=0");
+                }
+                else {
+                    alert(data.msg);
+                }
+            }
+        })
+    }
+
+</script>
+
+</body>
+</html>
