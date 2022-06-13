@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.tojintao.mapper.ChatMapper">
+
+    <select id="getChatById" resultType="cn.tojintao.model.vo.MessageVo">
+        select * from message_${tableNum} where sender = #{userId} and receiver = #{friendId}
+        or sender= #{friendId} and receiver = #{userId} order by gmt_create asc
+    </select>
+
+    <select id="getGroupChatById" resultType="cn.tojintao.model.entity.GroupMessage">
+        select g.id, g.group_id, g.sender, g.content, g.gmt_create, u.user_name, u.avatar
+        from group_message_${tableNum} as g left join `user` as u on
+        g.sender = u.user_id where group_id = #{groupId} order by gmt_create asc
+    </select>
+
+    <insert id="saveMessage" parameterType="cn.tojintao.model.entity.Message">
+        insert into message_${tableNum}(id, sender, receiver, content, gmt_create)
+        values (#{message.id}, #{message.sender}, #{message.receiver}, #{message.content}, #{message.gmtCreate})
+    </insert>
+
+    <insert id="saveGroupMessage" parameterType="cn.tojintao.model.entity.GroupMessage">
+        insert into group_message_${tableNum}(id, group_id, sender, content, gmt_create)
+        values (#{groupMessage.id}, #{groupMessage.groupId}, #{groupMessage.sender},
+                #{groupMessage.content}, #{groupMessage.gmtCreate})
+    </insert>
+
+    <delete id="deleteChat">
+        delete from message_${tableNum} where sender = #{userId} and receiver = #{friendId}
+        or sender = #{friendId} and receiver = #{userId}
+    </delete>
+
+    <select id="getAllGroup" resultType="cn.tojintao.model.entity.Group">
+        select gu.group_id as group_id, g.group_name as group_name from group_user as gu
+        left join `group` as g
+        on gu.group_id = g.group_id
+        where gu.user_id = #{userId}
+    </select>
+
+    <insert id="insertGroup">
+        insert into `group`(group_name) values (#{groupName})
+    </insert>
+
+    <insert id="intoGroup">
+        insert into `group_user`(group_id, user_id) values (#{groupId}, #{userId})
+    </insert>
+
+    <delete id="outGroup">
+        delete from group_user where group_id = #{groupId} and user_id = #{userId}
+    </delete>
+
+    <select id="findGroupByName" resultType="cn.tojintao.model.entity.Group">
+        select * from `group` where group_name = #{groupName}
+    </select>
+
+</mapper>
