@@ -1,4 +1,4 @@
-package cn.tojintao.service;
+package cn.tojintao.feign;
 
 import cn.tojintao.model.dto.ResultInfo;
 import cn.tojintao.model.entity.Group;

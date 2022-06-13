@@ -1,6 +1,7 @@
 package cn.tojintao.service;
 
-import cn.tojintao.constant.MsgConstant;
+import cn.tojintao.feign.ChatService;
+import cn.tojintao.feign.UserInfoService;
 import cn.tojintao.model.entity.GroupMessage;
 import cn.tojintao.model.entity.Message;
 import cn.tojintao.model.entity.User;
@@ -8,11 +9,9 @@ import cn.tojintao.model.vo.MessageVo;
 import cn.tojintao.netty.ChatHandler;
 import cn.tojintao.netty.UserChannelRelation;
 import cn.tojintao.util.DateUtil;
-import cn.tojintao.util.RocketMQUtil;
 import com.alibaba.fastjson.JSON;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

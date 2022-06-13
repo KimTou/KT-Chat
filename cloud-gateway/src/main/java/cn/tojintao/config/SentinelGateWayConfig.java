@@ -24,7 +24,8 @@ public class SentinelGateWayConfig {
             public Mono<ServerResponse> handleRequest(ServerWebExchange serverWebExchange, Throwable throwable) {
                 ResultInfo<String> error = ResultInfo.error(CodeEnum.TOO_MANY_REQUEST, "请求过于频繁，请稍后重试");
                 String jsonString = JSON.toJSONString(error);
-                return ServerResponse.ok().body(Mono.just(jsonString), String.class);
+                return ServerResponse.status(CodeEnum.TOO_MANY_REQUEST.getCode())
+                        .body(Mono.just(jsonString), String.class);
             }
         });
     }

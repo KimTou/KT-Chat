@@ -1,27 +1,7 @@
 package cn.tojintao.config;
 
-import cn.tojintao.constant.MsgConstant;
-import cn.tojintao.model.entity.GroupMessage;
-import cn.tojintao.model.vo.MessageVo;
-import cn.tojintao.netty.ChatHandler;
-import cn.tojintao.netty.UserChannelRelation;
-import cn.tojintao.service.UserInfoService;
-import com.alibaba.fastjson.JSONObject;
-import io.netty.channel.Channel;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import cn.tojintao.feign.UserInfoService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
-import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext;
-import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
-import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
-import org.apache.rocketmq.client.producer.DefaultMQProducer;
-import org.apache.rocketmq.common.message.MessageExt;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
-import java.util.List;
 
 /**
  * @author cjt

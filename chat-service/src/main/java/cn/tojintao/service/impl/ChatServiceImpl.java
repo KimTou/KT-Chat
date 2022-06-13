@@ -12,7 +12,7 @@ import cn.tojintao.model.vo.MessageVo;
 import cn.tojintao.model.vo.UserVo;
 import cn.tojintao.service.ChatService;
 import cn.tojintao.service.SnowflakeService;
-import cn.tojintao.service.UserInfoService;
+import cn.tojintao.feign.UserInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;

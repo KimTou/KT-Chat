@@ -1,6 +1,8 @@
 package cn.tojintao.service;
 
 import cn.tojintao.constant.MsgConstant;
+import cn.tojintao.feign.ChatService;
+import cn.tojintao.feign.UserInfoService;
 import cn.tojintao.model.entity.GroupMessage;
 import cn.tojintao.model.entity.Message;
 import cn.tojintao.model.entity.User;

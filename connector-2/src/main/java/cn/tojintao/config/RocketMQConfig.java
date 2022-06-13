@@ -5,7 +5,7 @@ import cn.tojintao.model.entity.GroupMessage;
 import cn.tojintao.model.vo.MessageVo;
 import cn.tojintao.netty.ChatHandler;
 import cn.tojintao.netty.UserChannelRelation;
-import cn.tojintao.service.UserInfoService;
+import cn.tojintao.feign.UserInfoService;
 import com.alibaba.fastjson.JSONObject;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
