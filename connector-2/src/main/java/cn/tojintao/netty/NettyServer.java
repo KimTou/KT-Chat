@@ -1,5 +1,7 @@
 package cn.tojintao.netty;
 
+import cn.tojintao.service.RedisService;
+import cn.tojintao.util.SpringUtil;
 import com.alibaba.nacos.api.naming.NamingFactory;
 import com.alibaba.nacos.api.naming.NamingService;
 import io.netty.bootstrap.ServerBootstrap;
@@ -15,7 +17,9 @@ import io.netty.handler.timeout.IdleStateHandler;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @author cjt
@@ -78,8 +82,11 @@ public class NettyServer {
     /**
      * 停止即时通讯服务器
      */
-    public void stop()
-    {
+    public void stop() {
+        RedisService redisService = SpringUtil.getBean(RedisService.class);
+        Set<String> userIdSet = UserChannelRelation.userChannel.keySet().stream()
+                .map(String::valueOf).collect(Collectors.toSet());
+        redisService.nettyStop(userIdSet);
         if (channel != null) {
             channel.close();
         }

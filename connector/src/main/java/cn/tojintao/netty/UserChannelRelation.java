@@ -19,9 +19,9 @@ public class UserChannelRelation {
     /**
      * 存储:用户->通道
      */
-    private static Map<Integer, Channel> userChannel = new ConcurrentHashMap<>();
+    public static Map<Integer, Channel> userChannel = new ConcurrentHashMap<>();
 
-    private static Map<ChannelHandlerContext, Integer> channelContextUser = new ConcurrentHashMap<>();
+    public static Map<ChannelHandlerContext, Integer> channelContextUser = new ConcurrentHashMap<>();
 
     public static void put(Integer userId, Channel channel) {
         userChannel.put(userId, channel);

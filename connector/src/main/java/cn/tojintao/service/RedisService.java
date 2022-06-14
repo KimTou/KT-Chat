@@ -1,10 +1,11 @@
 package cn.tojintao.service;
 
-import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
+
+import java.util.Set;
 
 /**
  * @author cjt
@@ -34,5 +35,12 @@ public class RedisService {
 
     public String getConnectorUrl(Integer userId) {
         return (String) redisTemplate.opsForHash().get(RELATION_KEY, String.valueOf(userId));
+    }
+
+    public void nettyStop(Set<String> userIdSet) {
+        for (String userId : userIdSet) {
+            redisTemplate.opsForHash().delete(RELATION_KEY, userId);
+            redisTemplate.opsForSet().remove(ONLINE_USER, userId);
+        }
     }
 }
