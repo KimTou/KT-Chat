@@ -8,6 +8,11 @@ spring:
     nacos:
       discovery:
         server-addr: 127.0.0.1:8848  #注册进Nacos
+  redis:
+    host: 112.74.175.57
+    port: 6379
+    password: Chen13058191889
+    database: 0
 
 rocketmq:
   namesrv:

@@ -95,7 +95,7 @@ public class NettyServer {
     }
 
     class ChatServerInitializer extends ChannelInitializer<Channel> {
-        private static final int READ_IDLE_TIME_OUT = 60; // 读超时  s
+        private static final int READ_IDLE_TIME_OUT = 10; // 读超时
         private static final int WRITE_IDLE_TIME_OUT = 0;// 写超时
         private static final int ALL_IDLE_TIME_OUT = 0; // 所有超时
         @Override
@@ -112,9 +112,10 @@ public class NettyServer {
             //对于websocket来说，它的数据都是以frame帧形式传输的，不同的数据类型对应的frame也不同
             //WebSocket协议处理器，负责WebSocket的握手处理以及协议升级（通过状态码101）
             pipeline.addLast(new WebSocketServerProtocolHandler("/ws", null, true, 10 * 1024));
-            //当连接在60秒内没有接收到消息时，就会触发一个 IdleStateEvent 事件，
-            // 此事件被 HeartbeatHandler 的 userEventTriggered 方法处理到
+            //当连接在60秒内没有接收到消息时，就会触发一个IdleStateEvent事件，
+            //此事件被HeartbeatHandler的userEventTriggered方法处理到
             pipeline.addLast(new IdleStateHandler(READ_IDLE_TIME_OUT, WRITE_IDLE_TIME_OUT, ALL_IDLE_TIME_OUT, TimeUnit.SECONDS));
+            pipeline.addLast(new HeartBeatHandler());
             //自定义Handler，处理业务逻辑
             pipeline.addLast(new ChatHandler());
         }

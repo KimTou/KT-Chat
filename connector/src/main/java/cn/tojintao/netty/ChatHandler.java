@@ -40,7 +40,7 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
         if (action.equals(MsgActionEnum.CONNECT.type)) { //初始化连接行为
             Integer userId = chatMsg.getSenderId();
             UserChannelRelation.put(userId, channel);   //本地新增连接
-            UserChannelRelation.putContext(ctx, userId);
+            UserChannelRelation.put(ctx.channel(), userId);
             RedisService redisService = SpringUtil.getBean(RedisService.class);
             redisService.online(userId);    //用户上线，更新用户所在netty节点
             System.out.println("用户id:" + userId + ", channel:" + UserChannelRelation.getChannel(userId));
@@ -73,10 +73,9 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
         System.out.println("客户端断开连接：channel id 为：" + ctx.channel().id().asLongText());
         //移除Redis状态信息
         RedisService redisService = SpringUtil.getBean(RedisService.class);
-        redisService.offline(UserChannelRelation.getUserByContext(ctx));
+        redisService.offline(UserChannelRelation.getUserByChannel(ctx.channel()));
         userClients.remove(ctx.channel());
-        UserChannelRelation.offline(ctx);
-
+        UserChannelRelation.offline(ctx.channel());
     }
 
     @Override
@@ -84,9 +83,9 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
         cause.printStackTrace();
         //移除Redis状态信息
         RedisService redisService = SpringUtil.getBean(RedisService.class);
-        redisService.offline(UserChannelRelation.getUserByContext(ctx));
+        redisService.offline(UserChannelRelation.getUserByChannel(ctx.channel()));
         ctx.channel().close();
         userClients.remove(ctx.channel());
-        UserChannelRelation.offline(ctx);
+        UserChannelRelation.offline(ctx.channel());
     }
 }
