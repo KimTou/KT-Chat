@@ -1,11 +1,11 @@
 package cn.tojintao.config;
 
 import cn.tojintao.constant.MsgConstant;
+import cn.tojintao.feign.UserInfoService;
 import cn.tojintao.model.entity.GroupMessage;
 import cn.tojintao.model.vo.MessageVo;
 import cn.tojintao.netty.ChatHandler;
 import cn.tojintao.netty.UserChannelRelation;
-import cn.tojintao.feign.UserInfoService;
 import com.alibaba.fastjson.JSONObject;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
@@ -34,7 +34,6 @@ public class RocketMQConfig {
     private String nameServerAddr;
     @Autowired
     private UserInfoService userInfoService;
-
     @Value("${netty.connector-url}")
     private String connectorUrl;
 
@@ -54,7 +53,8 @@ public class RocketMQConfig {
         DefaultMQPushConsumer consumer = new DefaultMQPushConsumer(MsgConstant.MSG_GROUP);
         consumer.setNamesrvAddr(nameServerAddr);
         String url = this.connectorUrl;
-        consumer.subscribe(MsgConstant.MSG_TOPIC + url, "*");
+        String port = url.substring(url.lastIndexOf("_") + 1);
+        consumer.subscribe(MsgConstant.MSG_TOPIC, port);
         consumer.registerMessageListener(new MessageListenerConcurrently() {
             @Override
             public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgs, ConsumeConcurrentlyContext context) {

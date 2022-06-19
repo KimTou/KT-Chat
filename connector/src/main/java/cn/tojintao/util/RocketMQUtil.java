@@ -15,7 +15,13 @@ import java.nio.charset.StandardCharsets;
 @Slf4j
 public class RocketMQUtil {
 
-    public static void syncSendMsg(DefaultMQProducer producer, String topic, String jsonStr) throws Exception{
+    public static void syncSendMsg(DefaultMQProducer producer, String topic, String port, String jsonStr) throws Exception{
+        Message msg = new Message(topic, port, jsonStr.getBytes(StandardCharsets.UTF_8));
+        SendResult result = producer.send(msg);
+        log.info(result.toString());
+    }
+
+    public static void syncSendGroupMsg(DefaultMQProducer producer, String topic, String jsonStr) throws Exception{
         Message msg = new Message(topic, jsonStr.getBytes(StandardCharsets.UTF_8));
         SendResult result = producer.send(msg);
         log.info(result.toString());

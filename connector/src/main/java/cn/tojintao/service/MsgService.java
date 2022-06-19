@@ -1,5 +1,6 @@
 package cn.tojintao.service;
 
+import cn.tojintao.constant.MsgConstant;
 import cn.tojintao.feign.ChatService;
 import cn.tojintao.feign.UserInfoService;
 import cn.tojintao.model.entity.GroupMessage;
@@ -9,9 +10,11 @@ import cn.tojintao.model.vo.MessageVo;
 import cn.tojintao.netty.ChatHandler;
 import cn.tojintao.netty.UserChannelRelation;
 import cn.tojintao.util.DateUtil;
+import cn.tojintao.util.RocketMQUtil;
 import com.alibaba.fastjson.JSON;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -33,7 +36,7 @@ public class MsgService {
     @Autowired
     private RedisService redisService;
     @Resource
-    //private DefaultMQProducer msgProducer;
+    private DefaultMQProducer msgProducer;
 
     @Value("${netty.connector-url}")
     public String connectorUrl;
@@ -52,11 +55,11 @@ public class MsgService {
         groupMessage.setGmtCreate(DateUtil.getDate());
         chatService.saveGroupMessage(groupMessage);
         String jsonString = JSON.toJSONString(groupMessage);
-        /*try {
-            RocketMQUtil.syncSendMsg(msgProducer, MsgConstant.GROUP_MSG_TOPIC, jsonString);
+        try {
+            RocketMQUtil.syncSendGroupMsg(msgProducer, MsgConstant.GROUP_MSG_TOPIC, jsonString);
         } catch (Exception e) {
             throw new RuntimeException(e);
-        }*/
+        }
         List<Integer> groupUser = userInfoService.getGroupUser(groupId).getData();
         for (Integer receiverId : groupUser) {
             push(receiverId, jsonString);
@@ -105,11 +108,12 @@ public class MsgService {
                 }
             }
         } else {
-            /*try {
-                RocketMQUtil.syncSendMsg(msgProducer, MsgConstant.MSG_TOPIC + connectorUrl, jsonString);
+            try {
+                String port = connectorUrl.substring(connectorUrl.lastIndexOf("_") + 1);
+                RocketMQUtil.syncSendMsg(msgProducer, MsgConstant.MSG_TOPIC, port, jsonString);
             } catch (Exception e) {
                 throw new RuntimeException(e);
-            }*/
+            }
         }
     }
 }

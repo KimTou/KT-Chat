@@ -95,7 +95,7 @@ public class NettyServer {
     }
 
     class ChatServerInitializer extends ChannelInitializer<Channel> {
-        private static final int READ_IDLE_TIME_OUT = 10; // 读超时
+        private static final int READ_IDLE_TIME_OUT = 3600; // 读超时
         private static final int WRITE_IDLE_TIME_OUT = 0;// 写超时
         private static final int ALL_IDLE_TIME_OUT = 0; // 所有超时
         @Override

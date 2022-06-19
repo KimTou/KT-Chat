@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * @author cjt
@@ -55,9 +56,13 @@ public class MsgService {
         chatService.saveGroupMessage(groupMessage);
         String jsonString = JSON.toJSONString(groupMessage);
         try {
-            RocketMQUtil.syncSendMsg(msgProducer, MsgConstant.GROUP_MSG_TOPIC, jsonString);
+            RocketMQUtil.syncSendGroupMsg(msgProducer, MsgConstant.GROUP_MSG_TOPIC, jsonString);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+        List<Integer> groupUser = userInfoService.getGroupUser(groupId).getData();
+        for (Integer receiverId : groupUser) {
+            push(receiverId, jsonString);
         }
     }
 
@@ -104,7 +109,8 @@ public class MsgService {
             }
         } else {
             try {
-                RocketMQUtil.syncSendMsg(msgProducer, MsgConstant.MSG_TOPIC + connectorUrl, jsonString);
+                String port = connectorUrl.substring(connectorUrl.lastIndexOf("_") + 1);
+                RocketMQUtil.syncSendMsg(msgProducer, MsgConstant.MSG_TOPIC, port, jsonString);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
