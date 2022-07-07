@@ -31,9 +31,7 @@ public class UserController {
     @ApiOperation(value = "用户登录")
     @PostMapping("/login")
     public ResultInfo<JSONObject> login(String userName,
-                                        String password,
-                                        HttpServletRequest request,
-                                        HttpServletResponse response) throws Exception {
+                                        String password) throws Exception {
         ResultInfo<JSONObject> resultInfo = userService.login(userName, password);
         return resultInfo;
     }

@@ -1,5 +1,6 @@
 package cn.tojintao.feign;
 
+import cn.tojintao.feign.fallback.UserInfoServiceFallback;
 import cn.tojintao.model.dto.ResultInfo;
 import cn.tojintao.model.entity.Group;
 import cn.tojintao.model.entity.User;
@@ -14,7 +15,7 @@ import java.util.List;
  * @author cjt
  * @date 2022/6/9 22:18
  */
-@FeignClient(value = "user-info")
+@FeignClient(value = "user-info", fallback = UserInfoServiceFallback.class)
 public interface UserInfoService {
 
     @GetMapping("/user-info/user/findUserById")

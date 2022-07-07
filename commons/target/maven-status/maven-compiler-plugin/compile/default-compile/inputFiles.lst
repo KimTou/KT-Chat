@@ -9,6 +9,7 @@ D:\GitHub\KT-Chat\commons\src\main\java\cn\tojintao\model\entity\Group.java
 D:\GitHub\KT-Chat\commons\src\main\java\cn\tojintao\common\CodeEnum.java
 D:\GitHub\KT-Chat\commons\src\main\java\cn\tojintao\model\vo\MessageVo.java
 D:\GitHub\KT-Chat\commons\src\main\java\cn\tojintao\common\ChatTypeEnum.java
+D:\GitHub\KT-Chat\commons\src\main\java\cn\tojintao\constant\MsgConstant.java
 D:\GitHub\KT-Chat\commons\src\main\java\cn\tojintao\model\vo\UserVo.java
 D:\GitHub\KT-Chat\commons\src\main\java\cn\tojintao\common\MsgActionEnum.java
 D:\GitHub\KT-Chat\commons\src\main\java\cn\tojintao\model\entity\User.java

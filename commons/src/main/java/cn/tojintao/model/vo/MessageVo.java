@@ -8,31 +8,31 @@ import cn.tojintao.model.entity.Message;
  */
 public class MessageVo extends Message {
 
-    private String senderName;
+    private String userName;
 
-    private String senderAvatar;
+    private String avatar;
 
-    public String getSenderName() {
-        return senderName;
+    public String getUserName() {
+        return userName;
     }
 
-    public void setSenderName(String senderName) {
-        this.senderName = senderName;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
-    public String getSenderAvatar() {
-        return senderAvatar;
+    public String getAvatar() {
+        return avatar;
     }
 
-    public void setSenderAvatar(String senderAvatar) {
-        this.senderAvatar = senderAvatar;
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 
     @Override
     public String toString() {
         return "MessageVo{" +
-                "senderName='" + senderName + '\'' +
-                ", senderAvatar='" + senderAvatar + '\'' +
+                "userName='" + userName + '\'' +
+                ", avatar='" + avatar + '\'' +
                 ", message=" + super.toString() + '\'' +
                 '}';
     }

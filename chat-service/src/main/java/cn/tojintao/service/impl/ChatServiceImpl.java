@@ -52,11 +52,11 @@ public class ChatServiceImpl implements ChatService {
         User friend = userInfoService.findUserById(friendId).getData();
         for (MessageVo messageVo : messages) {
             if(messageVo.getSender().equals(userId)){
-                messageVo.setSenderName(user.getUserName());
-                messageVo.setSenderAvatar(user.getAvatar());
+                messageVo.setUserName(user.getUserName());
+                messageVo.setAvatar(user.getAvatar());
             }else{
-                messageVo.setSenderName(friend.getUserName());
-                messageVo.setSenderAvatar(friend.getAvatar());
+                messageVo.setUserName(friend.getUserName());
+                messageVo.setAvatar(friend.getAvatar());
             }
         }
         return ResultInfo.success(CodeEnum.SUCCESS, messages);
@@ -70,8 +70,8 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public ResultInfo<List<GroupMessage>> getGroupChatById(Integer groupId) {
         int tableNum = groupId % messageCount;
-        List<GroupMessage> groupChatMes = chatMapper.getGroupChatById(tableNum, groupId);
-        return ResultInfo.success(CodeEnum.SUCCESS, groupChatMes);
+        List<GroupMessage> groupChatMsg = chatMapper.getGroupChatById(tableNum, groupId);
+        return ResultInfo.success(CodeEnum.SUCCESS, groupChatMsg);
     }
 
     /**
@@ -125,7 +125,8 @@ public class ChatServiceImpl implements ChatService {
         //获取私聊
         List<UserVo> friendList = userInfoService.findAllFriend(userId).getData();
         for(UserVo userVo : friendList){
-            Boolean status = redisTemplate.opsForSet().isMember(ONLINE_USER, String.valueOf(userVo.getUser().getUserId()));
+            Boolean status = redisTemplate.opsForSet().isMember(ONLINE_USER,
+                    String.valueOf(userVo.getUser().getUserId()));
             userVo.setStatus(Boolean.TRUE.equals(status));
             BoxVo boxVo = new BoxVo();
             boxVo.setUserVo(userVo);
@@ -171,7 +172,7 @@ public class ChatServiceImpl implements ChatService {
         }
         Integer groupId = chatMapper.insertGroup(groupName);
         chatMapper.intoGroup(userId, groupId);
-        return ResultInfo.success(CodeEnum.SUCCESS);
+        return ResultInfo.success(CodeEnum.SUCCESS, "新建成功");
     }
 
     /**
@@ -183,7 +184,7 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public ResultInfo<?> outGroup(Integer userId, Integer groupId) {
         chatMapper.outGroup(userId, groupId);
-        return ResultInfo.success(CodeEnum.SUCCESS);
+        return ResultInfo.success(CodeEnum.SUCCESS, "退出成功");
     }
 
     /**
@@ -195,13 +196,13 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public ResultInfo<?> intoGroup(Integer userId, String groupName) {
         if(groupName == null || groupName.length() == 0){
-            return ResultInfo.error(CodeEnum.NULL_PARAM);
+            return ResultInfo.error(CodeEnum.NULL_PARAM, "参数错误");
         }
         Group group = chatMapper.findGroupByName(groupName);
         if(group == null){
-            return ResultInfo.error(CodeEnum.BAD_REQUEST);
+            return ResultInfo.error(CodeEnum.BAD_REQUEST, "群组不存在");
         }
         chatMapper.intoGroup(userId, group.getGroupId());
-        return ResultInfo.success(CodeEnum.SUCCESS);
+        return ResultInfo.success(CodeEnum.SUCCESS, "加入成功");
     }
 }
