@@ -34,19 +34,14 @@ public class FriendServiceImpl implements FriendService {
     @Override
     public ResultInfo<List<UserVo>> findAllFriend(Integer userId) {
         List<Integer> allFriend = friendMapper.findAllFriendId(userId);
-        List<User> friendList = new ArrayList<>();
-        for (Integer friendId : allFriend) {
-            friendList.add(userMapper.getUserById(friendId));
-        }
-        //List<User> friendList = userMapper.getUserByIdList(allFriend);
-        List<UserVo> all = new LinkedList<>();
+        List<User> friendList = userMapper.getUserByIdList(allFriend);
+        List<UserVo> allFriendVo = new LinkedList<>();
         for(User user: friendList){
             UserVo userVo = new UserVo();
             userVo.setUser(user);
-            //userVo.setStatus(ChatSocket.getUserStatus(user.getUserId()));
-            all.add(userVo);
+            allFriendVo.add(userVo);
         }
-        return ResultInfo.success(CodeEnum.SUCCESS, all);
+        return ResultInfo.success(CodeEnum.SUCCESS, allFriendVo);
     }
 
     /**

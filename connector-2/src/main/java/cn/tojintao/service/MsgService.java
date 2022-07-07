@@ -10,11 +10,11 @@ import cn.tojintao.model.vo.MessageVo;
 import cn.tojintao.netty.ChatHandler;
 import cn.tojintao.netty.UserChannelRelation;
 import cn.tojintao.util.DateUtil;
-import cn.tojintao.util.RocketMQUtil;
 import com.alibaba.fastjson.JSON;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
+import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -36,7 +36,7 @@ public class MsgService {
     @Autowired
     private RedisService redisService;
     @Resource
-    private DefaultMQProducer msgProducer;
+    private RocketMQTemplate template;
 
     @Value("${netty.connector-url}")
     public String connectorUrl;
@@ -55,15 +55,12 @@ public class MsgService {
         groupMessage.setGmtCreate(DateUtil.getDate());
         chatService.saveGroupMessage(groupMessage);
         String jsonString = JSON.toJSONString(groupMessage);
-        try {
-            RocketMQUtil.syncSendGroupMsg(msgProducer, MsgConstant.GROUP_MSG_TOPIC, jsonString);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        List<Integer> groupUser = userInfoService.getGroupUser(groupId).getData();
+        template.convertAndSend(MsgConstant.GROUP_MSG_SAVE_TOPIC, groupMessage);
+        template.convertAndSend(MsgConstant.GROUP_MSG_TOPIC, groupMessage);
+        /*List<Integer> groupUser = userInfoService.getGroupUser(groupId).getData();
         for (Integer receiverId : groupUser) {
             push(receiverId, jsonString);
-        }
+        }*/
     }
 
     /**
@@ -77,7 +74,8 @@ public class MsgService {
         message.setContent(msg);
         message.setGmtCreate(DateUtil.getDate());
         //将消息存入数据库
-        chatService.saveMessage(message);
+        //chatService.saveMessage(message);
+        template.convertAndSend(MsgConstant.MSG_SAVE_TOPIC, message);
         //封装页面展示对象
         MessageVo messageVo = new MessageVo();
         messageVo.setId(message.getId());
@@ -85,35 +83,31 @@ public class MsgService {
         messageVo.setReceiver(message.getReceiver());
         messageVo.setContent(message.getContent());
         messageVo.setGmtCreate(message.getGmtCreate());
-        messageVo.setSenderName(user.getUserName());
-        messageVo.setSenderAvatar(user.getAvatar());
-        String jsonString = JSON.toJSONString(messageVo);
-        push(receiverId, jsonString);
+        messageVo.setUserName(user.getUserName());
+        messageVo.setAvatar(user.getAvatar());
+        push(receiverId, messageVo);
     }
 
-    public void push(Integer receiverId, String jsonString) {
-        String connectorUrl = redisService.getConnectorUrl(receiverId);
-        if (connectorUrl == null) {
-            System.out.println("离线消息:" + jsonString);
+    public void push(Integer receiverId, MessageVo messageVo) {
+        String receiverUrl = redisService.getConnectorUrl(receiverId);
+        if (receiverUrl == null) {
+            System.out.println("离线消息:" + messageVo);
             return;
         }
-        if (this.connectorUrl.equals(connectorUrl)) {  //判断目标用户是否在本机
+        if (this.connectorUrl.equals(receiverUrl)) {  //判断目标用户是否在本机
             Channel channel = UserChannelRelation.getChannel(receiverId);
             if (channel != null) {
                 Channel receiverChannel = ChatHandler.userClients.find(channel.id());
                 if (receiverChannel != null) {  //判断目标用户是否在线
-                    receiverChannel.writeAndFlush(new TextWebSocketFrame(jsonString));
+                    receiverChannel.writeAndFlush(new TextWebSocketFrame(JSON.toJSONString(messageVo)));
                 } else {
-                    System.out.println("离线消息:" + jsonString);
+                    System.out.println("离线消息:" + messageVo);
                 }
             }
         } else {
-            try {
-                String port = connectorUrl.substring(connectorUrl.lastIndexOf("_") + 1);
-                RocketMQUtil.syncSendMsg(msgProducer, MsgConstant.MSG_TOPIC, port, jsonString);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            String port = receiverUrl.substring(receiverUrl.lastIndexOf("_") + 1);
+            System.out.println(port);
+            template.convertAndSend(MsgConstant.MSG_TOPIC + ":" + port, messageVo);
         }
     }
 }

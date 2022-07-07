@@ -8,15 +8,26 @@ spring:
     nacos:
       discovery:
         server-addr: 127.0.0.1:8848  #注册进Nacos
+    sentinel:
+      transport:
+        port: 9999   #指定和Sentinel控制台交互的端口
+        dashboard: 127.0.0.1:8888  #Sentinel控制台服务地址
   redis:
     host: 112.74.175.57
     port: 6379
     password: Chen13058191889
     database: 0
 
+#激活Sentinel对Feign的支持
+feign:
+  sentinel:
+    enabled: true
+
 rocketmq:
-  namesrv:
-    address: localhost:9876
+  name-server: localhost:9876
+  producer:
+    group: MSG_GROUP
 
 netty:
   connector-url: localhost_9000
+  port: 9000

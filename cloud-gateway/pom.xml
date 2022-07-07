@@ -17,6 +17,11 @@
     </properties>
 
     <dependencies>
+        <!--sentinel规则持久化到nacos所需要的依赖-->
+        <dependency>
+            <groupId>com.alibaba.csp</groupId>
+            <artifactId>sentinel-datasource-nacos</artifactId>
+        </dependency>
         <dependency>
             <groupId>cn.tojintao</groupId>
             <artifactId>commons</artifactId>

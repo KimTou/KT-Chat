@@ -27,5 +27,5 @@ public interface UserInfoService {
     ResultInfo<List<UserVo>> findAllFriend(@RequestParam("userId") Integer userId);
 
     @GetMapping("/user-info/user/getGroupUser")
-    ResultInfo<List<Integer>> getGroupUser(Integer groupId);
+    ResultInfo<List<Integer>> getGroupUser(@RequestParam("groupId") Integer groupId);
 }

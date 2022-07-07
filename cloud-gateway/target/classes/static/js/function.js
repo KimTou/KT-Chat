@@ -30,19 +30,19 @@ function getChatById(friendId){
             $.each(messageList, function (i, rs){
                 if(messageList[i].sender != userId){
                     contentList += "<li class='other'>" +
-                        "<div class='avatar'><img src="+ messageList[i].senderAvatar +"></div>";
+                        "<div class='avatar'><img src="+ messageList[i].avatar +"></div>";
                     contentList +=
                         "<div class='msg'>" +
-                        "<p class='msg-name'>" + messageList[i].senderName +"</p>" +
+                        "<p class='msg-name'>" + messageList[i].userName +"</p>" +
                         "<p class='msg-text-other'>" + messageList[i].content +"</p>" +
                         "<time>" + messageList[i].gmtCreate + "</time>" +
                         "</div>" + "</li>";
                 }else{
                     contentList += "<li class='self'>" +
-                        "<div class='avatar'><img src="+ messageList[i].senderAvatar +"></div>";
+                        "<div class='avatar'><img src="+ messageList[i].avatar +"></div>";
                     contentList +=
                         "<div class='msg'>" +
-                        "<p class='msg-name'>" + messageList[i].senderName +"</p>" +
+                        "<p class='msg-name'>" + messageList[i].userName +"</p>" +
                         "<p class='msg-text-self'>" + messageList[i].content +"</p>" +
                         "<time>" + messageList[i].gmtCreate + "</time>" +
                         "</div>" + "</li>";
@@ -210,13 +210,25 @@ function getMessage(message) {
     } else{
         document.getElementById('news-top-ul').innerHTML +=
             "<li class='other'>" +
-            "<div class='avatar'><img src="+ message.senderAvatar +"></div>" +
+            "<div class='avatar'><img src="+ message.avatar +"></div>" +
             "<div class='msg'>" +
-            "<p class='msg-name'>"+ message.senderName +"</p>" +
+            "<p class='msg-name'>"+ message.userName +"</p>" +
             "<p class='msg-text-other'>" + message.content +"</p>" +
             //"<time>" + message.gmtCreate + "</time>" +
             "</div>" + "</li>";
     }
+}
+
+function show(message) {
+    let userName = window.localStorage.getItem("userName");
+    let avatar = window.localStorage.getItem("avatar");
+    document.getElementById('news-top-ul').innerHTML +=
+        "<li class='self'>" +
+        "<div class='avatar'><img src="+ avatar +"></div>" +
+        "<div class='msg'>" +
+        "<p class='msg-name'>" + userName +"</p>" +
+        "<p class='msg-text-self'>" + message.message +"</p>" +
+        "</div>" + "</li>";
 }
 
 //发送群消息
@@ -235,7 +247,7 @@ function sendGroup(groupId) {
     }
     if(data.message != '') {
         websocket.send(JSON.stringify(data));
-        //getMessage(data.chatMsg);
+        show(data.chatMsg);
         document.getElementById('message').value = '';
     }else{
         alert("输入框为空");

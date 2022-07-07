@@ -12,6 +12,14 @@ spring:
       transport:
         port: 9999   #指定和Sentinel控制台交互的端口
         dashboard: 127.0.0.1:8888  #Sentinel控制台服务地址
+      datasource: #添加Nacos数据源配置，sentinel持久化
+        ds1:
+          nacos:
+            server-addr: localhost:8848
+            dataId: gateway-sentinel
+            groupId: DEFAULT_GROUP
+            data-type: json
+            rule-type: gw-flow
     gateway:
       globalcors:
         cors-configurations:

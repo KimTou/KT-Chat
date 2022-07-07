@@ -4,6 +4,7 @@ cn\tojintao\model\entity\GroupMessage.class
 cn\tojintao\model\entity\User.class
 cn\tojintao\model\protocol\ChatMsg.class
 cn\tojintao\util\DateUtil.class
+cn\tojintao\constant\MsgConstant.class
 cn\tojintao\model\vo\BoxVo.class
 cn\tojintao\common\ChatTypeEnum.class
 cn\tojintao\common\CodeEnum.class
