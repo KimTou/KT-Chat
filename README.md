@@ -1,5 +1,7 @@
 # KT-Chat 分布式即时聊天系统
-技术选型：Netty、SpringCloud GateWay、Nacos、Sentinel、RocketMQ、MySQL、Redis。
+**技术选型**：Netty、SpringCloud GateWay、Nacos、Sentinel、RocketMQ、MySQL、Redis。
+
+**项目描述**：项目基于 SpringCloud Gateway + Nacos + Sentinel + OpenFeign 作为分布式系统架构，基于 Netty 实现高性能网络通信。独立完成项目，包括需求分析、设计、开发实现。
 
 ## 用例分析
 
