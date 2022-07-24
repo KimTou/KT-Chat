@@ -1,9 +1,11 @@
 # KT-Chat 分布式即时聊天系统
 **技术选型**：Java、SpringCloud、Nacos、Sentinel、Netty、MySQL、Redis、RocketMQ 等
 
-**项目描述**：项目基于 SpringCloud Gateway + Nacos + Sentinel + OpenFeign 作为分布式系统架构，基于 Netty 实现高性能网络通信。
+**项目描述**：项目基于 SpringCloud Gateway + Nacos + Sentinel + OpenFeign 作为分布式系统架构，基于 Netty 实现高性能网络通信。主要功能有：一对一聊天以及群组聊天、好友管理、群组管理等。
 
 项目独立完成，包括需求分析、设计、开发实现。
+
+关于我在项目中使用 MySQL 读写分离的总结：[MySQL主从延迟的解决方案](https://blog.csdn.net/KIMTOU/article/details/125033199)
 
 ## 用例分析
 
@@ -34,7 +36,7 @@
 
 ![](https://cdn.tojintao.cn/KT-Chat系统架构设计.png)
 
-项目基于 Nacos 作为注册中心，将各个服务注册进 Nacos，包括 Netty 服务端；使用 SpringCloud Gateway 作为服务网关，是所有请求的统一入口；限流组件使用 Sentinel；基于 Netty 进行通信、维护长连接；RocketMQ 作为消息队列，处理聊天消息的异步入库以及解决分布式 Netty 节点问题； Zookeeper 用于分布式id的生成；Redis 用于记录用户在线状态以及记录 Netty 节点的元数据；MySQL 对数据进行持久化。
+项目基于 Nacos 作为注册中心，将各个服务注册进 Nacos，包括 Netty 服务端；使用 SpringCloud Gateway 作为服务网关，是所有请求的统一入口；限流组件使用 Sentinel；基于 Netty 进行通信、维护长连接；RocketMQ 作为消息队列，处理聊天消息的异步入库以及解决分布式 Netty 节点问题； Zookeeper 用于分布式 id 的生成；Redis 用于记录用户在线状态以及记录 Netty 节点的元数据；MySQL 对数据进行持久化。
 
 ## 运行截图
 
@@ -45,8 +47,3 @@
 #### 群聊
 
 ![](https://cdn.tojintao.cn/群聊测试1.PNG)
-
-***
-
-如果这个项目能帮助到你，请点个 star :star: 吧 ~
-
