@@ -29,5 +29,5 @@ rocketmq:
     group: MSG_GROUP
 
 netty:
-  connector-url: localhost_9001
+  connector-url: localhost_8031
   port: 9001

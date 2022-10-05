@@ -1,7 +1,6 @@
 package cn.tojintao.service;
 
 import cn.tojintao.constant.MsgConstant;
-import cn.tojintao.feign.ChatService;
 import cn.tojintao.feign.UserInfoService;
 import cn.tojintao.model.entity.GroupMessage;
 import cn.tojintao.model.entity.Message;
@@ -13,15 +12,17 @@ import cn.tojintao.util.DateUtil;
 import com.alibaba.fastjson.JSON;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author cjt
@@ -32,14 +33,78 @@ public class MsgService {
     @Autowired
     private UserInfoService userInfoService;
     @Autowired
-    private ChatService chatService;
-    @Autowired
     private RedisService redisService;
     @Resource
     private RocketMQTemplate template;
+    @Resource
+    private RestTemplate restTemplate;
 
     @Value("${netty.connector-url}")
     public String connectorUrl;
+    private static final String PREFIX = "http://";
+
+    /**
+     * 私聊
+     */
+    public void sendMessage(Integer senderId, Integer receiverId, String msg) throws IOException {
+        User user = userInfoService.findUserById(senderId).getData();
+        Message message = new Message();
+        message.setSender(senderId);
+        message.setReceiver(receiverId);
+        message.setContent(msg);
+        message.setGmtCreate(DateUtil.getDate());
+
+        //消息异步入库
+        template.convertAndSend(MsgConstant.MSG_SAVE_TOPIC, message);
+        //chatService.saveMessage(message);
+
+        //封装页面展示对象
+        MessageVo messageVo = new MessageVo();
+        messageVo.setId(message.getId());
+        messageVo.setSender(message.getSender());
+        messageVo.setReceiver(message.getReceiver());
+        messageVo.setContent(message.getContent());
+        messageVo.setGmtCreate(message.getGmtCreate());
+        messageVo.setUserName(user.getUserName());
+        messageVo.setAvatar(user.getAvatar());
+
+        //消息转发
+        transfer(receiverId, messageVo);
+    }
+
+    /**
+     * 私聊消息转发
+     * @param receiverId 接收用户id
+     * @param messageVo 私聊消息
+     */
+    public void transfer(Integer receiverId, MessageVo messageVo) {
+        String receiverUrl = redisService.getConnectorUrl(receiverId);
+        if (receiverUrl == null) {
+            System.out.println("离线消息:" + messageVo);
+        } else if (this.connectorUrl.equals(receiverUrl)) { //判断目标用户是否在本机
+            //在本机: 直接推送
+            push(receiverId, messageVo);
+        } else {
+            //不在本机: 转发消息
+            receiverUrl = PREFIX + receiverUrl.replace("_", ":") + "/push/pushMsg";
+            restTemplate.postForObject(receiverUrl, messageVo, String.class);
+        }
+    }
+
+    /**
+     * 消息推送
+     */
+    public void push(Integer receiverId, MessageVo messageVo) {
+        Channel channel = UserChannelRelation.getChannel(receiverId);
+        if (channel != null) {
+            Channel receiverChannel = ChatHandler.userClients.find(channel.id());
+            if (receiverChannel != null) {  //判断目标用户是否在线
+                receiverChannel.writeAndFlush(new TextWebSocketFrame(JSON.toJSONString(messageVo)));
+            } else {
+                System.out.println("离线消息:" + messageVo);
+            }
+        }
+    }
 
     /**
      * 群聊
@@ -53,61 +118,57 @@ public class MsgService {
         groupMessage.setAvatar(user.getAvatar());
         groupMessage.setContent(msg);
         groupMessage.setGmtCreate(DateUtil.getDate());
-        chatService.saveGroupMessage(groupMessage);
-        String jsonString = JSON.toJSONString(groupMessage);
+
+        //消息异步入库
         template.convertAndSend(MsgConstant.GROUP_MSG_SAVE_TOPIC, groupMessage);
-        template.convertAndSend(MsgConstant.GROUP_MSG_TOPIC, groupMessage);
-        /*List<Integer> groupUser = userInfoService.getGroupUser(groupId).getData();
-        for (Integer receiverId : groupUser) {
-            push(receiverId, jsonString);
-        }*/
+        //chatService.saveGroupMessage(groupMessage);
+
+        List<Integer> userIdList = userInfoService.getGroupUser(groupId).getData();
+        userIdList.remove(senderId);
+        groupMessage.setUserIdList(userIdList);
+
+        //群聊消息转发
+        pushGroupUser(userIdList, groupMessage);
     }
 
     /**
-     * 私聊
+     * 群聊消息转发
+     * @param userIdList 接收群组用户id
+     * @param groupMessage 群聊消息
      */
-    public void sendMessage(Integer senderId, Integer receiverId, String msg) throws IOException {
-        User user = userInfoService.findUserById(senderId).getData();
-        Message message = new Message();
-        message.setSender(senderId);
-        message.setReceiver(receiverId);
-        message.setContent(msg);
-        message.setGmtCreate(DateUtil.getDate());
-        //将消息存入数据库
-        //chatService.saveMessage(message);
-        template.convertAndSend(MsgConstant.MSG_SAVE_TOPIC, message);
-        //封装页面展示对象
-        MessageVo messageVo = new MessageVo();
-        messageVo.setId(message.getId());
-        messageVo.setSender(message.getSender());
-        messageVo.setReceiver(message.getReceiver());
-        messageVo.setContent(message.getContent());
-        messageVo.setGmtCreate(message.getGmtCreate());
-        messageVo.setUserName(user.getUserName());
-        messageVo.setAvatar(user.getAvatar());
-        push(receiverId, messageVo);
+    public void pushGroupUser(List<Integer> userIdList, GroupMessage groupMessage) {
+        Set<String> targetUrlSet = new HashSet<>();
+        for (Integer receiverId : userIdList) {
+            String receiverUrl = redisService.getConnectorUrl(receiverId);
+            if (receiverUrl == null) {
+                System.out.println("离线消息:" + groupMessage);
+            } else if (this.connectorUrl.equals(receiverUrl)) { //判断目标用户是否在本机
+                //在本机: 直接推送
+                push(receiverId, groupMessage);
+            } else {
+                //不在本机: 转发消息
+                targetUrlSet.add(receiverUrl);
+            }
+        }
+        transfer(targetUrlSet, groupMessage);
     }
 
-    public void push(Integer receiverId, MessageVo messageVo) {
-        String receiverUrl = redisService.getConnectorUrl(receiverId);
-        if (receiverUrl == null) {
-            System.out.println("离线消息:" + messageVo);
-            return;
+    public void transfer(Set<String> targetUrlSet, GroupMessage groupMessage) {
+        for (String receiverUrl : targetUrlSet) {
+            receiverUrl = PREFIX + receiverUrl.replace("_", ":") + "/push/pushGroupMsg";
+            restTemplate.postForObject(receiverUrl, groupMessage, String.class);
         }
-        if (this.connectorUrl.equals(receiverUrl)) {  //判断目标用户是否在本机
-            Channel channel = UserChannelRelation.getChannel(receiverId);
-            if (channel != null) {
-                Channel receiverChannel = ChatHandler.userClients.find(channel.id());
-                if (receiverChannel != null) {  //判断目标用户是否在线
-                    receiverChannel.writeAndFlush(new TextWebSocketFrame(JSON.toJSONString(messageVo)));
-                } else {
-                    System.out.println("离线消息:" + messageVo);
-                }
+    }
+
+    public void push(Integer receiverId, GroupMessage groupMessage) {
+        Channel channel = UserChannelRelation.getChannel(receiverId);
+        if (channel != null) {
+            Channel receiverChannel = ChatHandler.userClients.find(channel.id());
+            if (receiverChannel != null) {  //判断目标用户是否在线
+                receiverChannel.writeAndFlush(new TextWebSocketFrame(JSON.toJSONString(groupMessage)));
+            } else {
+                System.out.println("离线消息:" + groupMessage);
             }
-        } else {
-            String port = receiverUrl.substring(receiverUrl.lastIndexOf("_") + 1);
-            System.out.println(port);
-            template.convertAndSend(MsgConstant.MSG_TOPIC + ":" + port, messageVo);
         }
     }
 }

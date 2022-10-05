@@ -76,7 +76,6 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
         redisService.offline(UserChannelRelation.getUserByChannel(ctx.channel()));
         userClients.remove(ctx.channel());
         UserChannelRelation.offline(ctx.channel());
-
     }
 
     @Override

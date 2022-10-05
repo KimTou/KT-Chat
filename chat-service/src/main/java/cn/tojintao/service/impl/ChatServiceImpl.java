@@ -1,5 +1,6 @@
 package cn.tojintao.service.impl;
 
+import cn.tojintao.annotation.ReadOnly;
 import cn.tojintao.common.CodeEnum;
 import cn.tojintao.mapper.ChatMapper;
 import cn.tojintao.model.dto.ResultInfo;
@@ -43,6 +44,7 @@ public class ChatServiceImpl implements ChatService {
     /**
      * 获取聊天记录
      */
+    @ReadOnly
     @Override
     public ResultInfo<List<MessageVo>> getChatById(Integer userId, Integer friendId) {
         int tableNum = (userId + friendId) % messageCount;
@@ -67,6 +69,7 @@ public class ChatServiceImpl implements ChatService {
      * @param groupId
      * @return
      */
+    @ReadOnly
     @Override
     public ResultInfo<List<GroupMessage>> getGroupChatById(Integer groupId) {
         int tableNum = groupId % messageCount;
@@ -119,6 +122,7 @@ public class ChatServiceImpl implements ChatService {
      * @param userId
      * @return
      */
+    @ReadOnly
     @Override
     public ResultInfo<List<BoxVo>> getAllChatBox(Integer userId) {
         List<BoxVo> boxVoList = new LinkedList<>();
@@ -149,6 +153,7 @@ public class ChatServiceImpl implements ChatService {
      * @param userId
      * @return
      */
+    @ReadOnly
     @Override
     public ResultInfo<List<Group>> getAllGroup(Integer userId) {
         List<Group> allGroup = chatMapper.getAllGroup(userId);

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author cjt
@@ -22,6 +23,8 @@ public class GroupMessage implements Serializable {
     private String avatar;
 
     private String content;
+
+    private List<Integer> userIdList;
 
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date gmtCreate;
@@ -82,15 +85,24 @@ public class GroupMessage implements Serializable {
         this.avatar = senderAvatar;
     }
 
+    public List<Integer> getUserIdList() {
+        return userIdList;
+    }
+
+    public void setUserIdList(List<Integer> userIdList) {
+        this.userIdList = userIdList;
+    }
+
     @Override
     public String toString() {
         return "GroupMessage{" +
                 "id=" + id +
                 ", groupId=" + groupId +
                 ", sender=" + sender +
-                ", senderName='" + userName + '\'' +
-                ", senderAvatar='" + avatar + '\'' +
+                ", userName='" + userName + '\'' +
+                ", avatar='" + avatar + '\'' +
                 ", content='" + content + '\'' +
+                ", userIdList=" + userIdList +
                 ", gmtCreate=" + gmtCreate +
                 '}';
     }
