@@ -21,6 +21,9 @@ public interface UserInfoService {
     @GetMapping("/user-info/user/findUserById")
     ResultInfo<User> findUserById(@RequestParam("userId") Integer userId);
 
+    @GetMapping("/user-info/user/getGroupById")
+    ResultInfo<Group> getGroupById(@RequestParam("groupId") Integer groupId);
+
     @GetMapping("/user-info/user/getAllGroup")
     ResultInfo<List<Group>> getAllGroup(@RequestParam("userId") Integer userId);
 

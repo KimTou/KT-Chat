@@ -110,6 +110,11 @@ html, body {
     margin: 10px 11px;
 }
 
+.main .top .top-type .messages {
+    background-image: url("../img/past.png");
+
+}
+
 .main .top .top-type .news {
     background-image: url("../img/user.png");
 

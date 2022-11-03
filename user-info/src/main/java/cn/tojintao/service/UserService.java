@@ -24,4 +24,6 @@ public interface UserService {
     ResultInfo<List<Group>> getAllGroup(Integer userId);
 
     ResultInfo<List<Integer>> getGroupUser(Integer groupId);
+
+    ResultInfo<Group> getGroupById(Integer groupId);
 }

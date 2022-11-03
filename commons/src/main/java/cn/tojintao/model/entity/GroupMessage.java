@@ -16,6 +16,8 @@ public class GroupMessage implements Serializable {
 
     private Integer groupId;
 
+    private String groupName;
+
     private Integer sender;
 
     private String userName;
@@ -45,6 +47,14 @@ public class GroupMessage implements Serializable {
         this.groupId = groupId;
     }
 
+    public String getGroupName() {
+        return groupName;
+    }
+
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
+    }
+
     public Integer getSender() {
         return sender;
     }
@@ -61,28 +71,20 @@ public class GroupMessage implements Serializable {
         this.userName = userName;
     }
 
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
     public String getContent() {
         return content;
     }
 
     public void setContent(String content) {
         this.content = content;
-    }
-
-    public Date getGmtCreate() {
-        return gmtCreate;
-    }
-
-    public void setGmtCreate(Date gmtCreate) {
-        this.gmtCreate = gmtCreate;
-    }
-
-    public String getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(String senderAvatar) {
-        this.avatar = senderAvatar;
     }
 
     public List<Integer> getUserIdList() {
@@ -93,11 +95,20 @@ public class GroupMessage implements Serializable {
         this.userIdList = userIdList;
     }
 
+    public Date getGmtCreate() {
+        return gmtCreate;
+    }
+
+    public void setGmtCreate(Date gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
+
     @Override
     public String toString() {
         return "GroupMessage{" +
                 "id=" + id +
                 ", groupId=" + groupId +
+                ", groupName='" + groupName + '\'' +
                 ", sender=" + sender +
                 ", userName='" + userName + '\'' +
                 ", avatar='" + avatar + '\'' +

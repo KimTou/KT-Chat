@@ -26,6 +26,14 @@ public class UserInfoServiceFallback implements UserInfoService {
     }
 
     @Override
+    public ResultInfo<Group> getGroupById(Integer groupId) {
+        Group group = new Group();
+        group.setGroupId(0);
+        group.setGroupName("未知");
+        return ResultInfo.error(CodeEnum.INTERNAL_SERVER_ERROR, group);
+    }
+
+    @Override
     public ResultInfo<List<Group>> getAllGroup(Integer userId) {
         List<Group> groupList = new ArrayList<>();
         return ResultInfo.error(CodeEnum.INTERNAL_SERVER_ERROR, groupList);

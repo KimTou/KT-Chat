@@ -2,6 +2,7 @@ package cn.tojintao.service;
 
 import cn.tojintao.constant.MsgConstant;
 import cn.tojintao.feign.UserInfoService;
+import cn.tojintao.model.entity.Group;
 import cn.tojintao.model.entity.GroupMessage;
 import cn.tojintao.model.entity.Message;
 import cn.tojintao.model.entity.User;
@@ -53,11 +54,6 @@ public class MsgService {
         message.setReceiver(receiverId);
         message.setContent(msg);
         message.setGmtCreate(DateUtil.getDate());
-
-        //消息异步入库
-        template.convertAndSend(MsgConstant.MSG_SAVE_TOPIC, message);
-        //chatService.saveMessage(message);
-
         //封装页面展示对象
         MessageVo messageVo = new MessageVo();
         messageVo.setId(message.getId());
@@ -67,6 +63,10 @@ public class MsgService {
         messageVo.setGmtCreate(message.getGmtCreate());
         messageVo.setUserName(user.getUserName());
         messageVo.setAvatar(user.getAvatar());
+
+        //消息异步入库
+        template.convertAndSend(MsgConstant.MSG_SAVE_TOPIC, messageVo);
+        //chatService.saveMessage(message);
 
         //消息转发
         transfer(receiverId, messageVo);
@@ -111,8 +111,10 @@ public class MsgService {
      */
     public void sendGroupMessage(Integer senderId, Integer groupId, String msg) throws IOException {
         User user = userInfoService.findUserById(senderId).getData();
+        Group group = userInfoService.getGroupById(groupId).getData();
         GroupMessage groupMessage = new GroupMessage();
         groupMessage.setGroupId(groupId);
+        groupMessage.setGroupName(group.getGroupName());
         groupMessage.setSender(senderId);
         groupMessage.setUserName(user.getUserName());
         groupMessage.setAvatar(user.getAvatar());
@@ -166,8 +168,6 @@ public class MsgService {
             Channel receiverChannel = ChatHandler.userClients.find(channel.id());
             if (receiverChannel != null) {  //判断目标用户是否在线
                 receiverChannel.writeAndFlush(new TextWebSocketFrame(JSON.toJSONString(groupMessage)));
-            } else {
-                System.out.println("离线消息:" + groupMessage);
             }
         }
     }

@@ -26,4 +26,5 @@ public interface UserMapper {
 
     List<Integer> getGroupUser(Integer groupId);
 
+    Group getGroupById(Integer groupId);
 }

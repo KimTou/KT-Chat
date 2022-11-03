@@ -85,4 +85,10 @@ public class UserServiceImpl implements UserService {
         List<Integer> groupUserIdList = userMapper.getGroupUser(groupId);
         return ResultInfo.success(CodeEnum.SUCCESS, groupUserIdList);
     }
+
+    @Override
+    public ResultInfo<Group> getGroupById(Integer groupId) {
+        Group group = userMapper.getGroupById(groupId);
+        return ResultInfo.success(CodeEnum.SUCCESS, group);
+    }
 }

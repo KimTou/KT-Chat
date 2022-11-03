@@ -58,4 +58,9 @@ public class UserController {
     public ResultInfo<List<Integer>> getGroupUser(Integer groupId) {
         return userService.getGroupUser(groupId);
     }
+
+    @GetMapping("/getGroupById")
+    public ResultInfo<Group> getGroupById(Integer groupId) {
+        return userService.getGroupById(groupId);
+    }
 }

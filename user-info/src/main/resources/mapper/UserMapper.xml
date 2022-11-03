@@ -34,4 +34,7 @@
         select user_id from `group_user` where group_id = #{groupId}
     </select>
 
+    <select id="getGroupById" resultType="cn.tojintao.model.entity.Group">
+        select * from `group` where group_id = #{groupId}
+    </select>
 </mapper>
