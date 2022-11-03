@@ -1,6 +1,5 @@
 package cn.tojintao.service.impl;
 
-import cn.tojintao.annotation.ReadOnly;
 import cn.tojintao.common.CodeEnum;
 import cn.tojintao.mapper.ChatMapper;
 import cn.tojintao.model.dto.ResultInfo;
@@ -11,21 +10,41 @@ import cn.tojintao.model.entity.User;
 import cn.tojintao.model.vo.BoxVo;
 import cn.tojintao.model.vo.MessageVo;
 import cn.tojintao.model.vo.UserVo;
+import cn.tojintao.repository.MessageRepository;
+import cn.tojintao.repository.entity.MessageEntity;
 import cn.tojintao.service.ChatService;
 import cn.tojintao.service.SnowflakeService;
 import cn.tojintao.feign.UserInfoService;
+import com.alibaba.fastjson.JSON;
+import lombok.extern.log4j.Log4j;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.MultiMatchQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.TermQueryBuilder;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 
 /**
  * @author cjt
  * @date 2021/6/20 20:20
  */
+@Log4j
 @Service
 public class ChatServiceImpl implements ChatService {
 
@@ -37,14 +56,17 @@ public class ChatServiceImpl implements ChatService {
     private RedisTemplate<String, String> redisTemplate;
     @Autowired
     private SnowflakeService snowflakeService;
-    private static final String ONLINE_USER = "online_user";
+    @Autowired
+    private MessageRepository messageRepository;
+    @Autowired
+    private RestHighLevelClient restHighLevelClient;
 
+    private static final String ONLINE_USER = "online_user";
     private static final int messageCount = 3;
 
     /**
      * 获取聊天记录
      */
-    @ReadOnly
     @Override
     public ResultInfo<List<MessageVo>> getChatById(Integer userId, Integer friendId) {
         int tableNum = (userId + friendId) % messageCount;
@@ -69,7 +91,6 @@ public class ChatServiceImpl implements ChatService {
      * @param groupId
      * @return
      */
-    @ReadOnly
     @Override
     public ResultInfo<List<GroupMessage>> getGroupChatById(Integer groupId) {
         int tableNum = groupId % messageCount;
@@ -84,10 +105,21 @@ public class ChatServiceImpl implements ChatService {
      */
     @Override
     public ResultInfo<Message> saveMessage(Message message) {
-        message.setId(snowflakeService.getId().getId());
+        message.setId(snowflakeService.getId().getId()); //生成分布式id
         int tableNum = (message.getSender() + message.getReceiver()) % messageCount;
         chatMapper.saveMessage(tableNum, message);
         return ResultInfo.success(CodeEnum.SUCCESS, message);
+    }
+
+    @Override
+    public ResultInfo<MessageVo> saveMessageVo(MessageVo messageVo) {
+        messageVo.setId(snowflakeService.getId().getId()); //生成分布式id
+        int tableNum = (messageVo.getSender() + messageVo.getReceiver()) % messageCount;
+        chatMapper.saveMessage(tableNum, messageVo);
+
+        MessageEntity messageEntity = JSON.parseObject(JSON.toJSONString(messageVo), MessageEntity.class);
+        messageRepository.save(messageEntity); //双写至ES
+        return ResultInfo.success(CodeEnum.SUCCESS, messageVo);
     }
 
 
@@ -101,6 +133,9 @@ public class ChatServiceImpl implements ChatService {
         groupMessage.setId(snowflakeService.getId().getId());
         int tableNum = groupMessage.getGroupId() % messageCount;
         chatMapper.saveGroupMessage(tableNum, groupMessage);
+
+        MessageEntity messageEntity = JSON.parseObject(JSON.toJSONString(groupMessage), MessageEntity.class);
+        messageRepository.save(messageEntity); //双写至ES
         return ResultInfo.success(CodeEnum.SUCCESS, groupMessage);
     }
 
@@ -122,7 +157,6 @@ public class ChatServiceImpl implements ChatService {
      * @param userId
      * @return
      */
-    @ReadOnly
     @Override
     public ResultInfo<List<BoxVo>> getAllChatBox(Integer userId) {
         List<BoxVo> boxVoList = new LinkedList<>();
@@ -153,7 +187,6 @@ public class ChatServiceImpl implements ChatService {
      * @param userId
      * @return
      */
-    @ReadOnly
     @Override
     public ResultInfo<List<Group>> getAllGroup(Integer userId) {
         List<Group> allGroup = chatMapper.getAllGroup(userId);
@@ -209,5 +242,32 @@ public class ChatServiceImpl implements ChatService {
         }
         chatMapper.intoGroup(userId, group.getGroupId());
         return ResultInfo.success(CodeEnum.SUCCESS, "加入成功");
+    }
+
+    @Override
+    public ResultInfo<List<Map<String, Object>>> searchMessage(Integer userId, String keyword) throws IOException {
+        List<Group> allGroup = userInfoService.getAllGroup(userId).getData();
+        List<Integer> groupIds = allGroup.stream().map(Group::getGroupId).collect(Collectors.toList());
+
+        SearchRequest searchRequest = new SearchRequest("messages");
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        MultiMatchQueryBuilder matchQueryBuilder = QueryBuilders.multiMatchQuery(keyword, "content");
+        TermQueryBuilder tq1 = QueryBuilders.termQuery("sender", userId);
+        TermQueryBuilder tq2 = QueryBuilders.termQuery("receiver", userId);
+        boolQueryBuilder.must(matchQueryBuilder).should(tq1).should(tq2);
+        for (Integer groupId : groupIds) {
+            boolQueryBuilder.should(QueryBuilders.termQuery("groupId", groupId));
+        }
+        sourceBuilder.query(boolQueryBuilder);
+        sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
+        searchRequest.source(sourceBuilder);
+        SearchResponse searchResponse = restHighLevelClient.search(searchRequest);
+        List<Map<String, Object>> res = new ArrayList<>();
+        for (SearchHit document : searchResponse.getHits().getHits()) {
+            log.info(document);
+            res.add(document.getSourceAsMap());
+        }
+        return ResultInfo.success(CodeEnum.SUCCESS, res);
     }
 }

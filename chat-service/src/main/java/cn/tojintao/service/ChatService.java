@@ -7,7 +7,9 @@ import cn.tojintao.model.entity.Message;
 import cn.tojintao.model.vo.BoxVo;
 import cn.tojintao.model.vo.MessageVo;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author cjt
@@ -20,6 +22,8 @@ public interface ChatService {
     ResultInfo<List<GroupMessage>> getGroupChatById(Integer groupId);
 
     ResultInfo<Message> saveMessage(Message message);
+
+    ResultInfo<MessageVo> saveMessageVo(MessageVo messageVo);
 
     ResultInfo<GroupMessage> saveGroupMessage(GroupMessage groupMessage);
 
@@ -35,4 +39,5 @@ public interface ChatService {
 
     ResultInfo<?> intoGroup(Integer userId, String groupName);
 
+    ResultInfo<List<Map<String, Object>>> searchMessage(Integer userId, String keyword) throws IOException;
 }

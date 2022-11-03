@@ -11,7 +11,9 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author cjt
@@ -72,9 +74,14 @@ public class ChatController {
         return chatService.intoGroup(userId, groupName);
     }
 
+    @ApiOperation("模糊查询历史消息")
+    @GetMapping("/searchMessage")
+    public ResultInfo<List<Map<String, Object>>> searchMessage(Integer userId, String keyword) throws IOException {
+        return chatService.searchMessage(userId, keyword);
+    }
+
     @PostMapping("/saveMessage")
     public ResultInfo<Message> saveMessage(@RequestBody Message message) {
-        System.out.println(message);
         return chatService.saveMessage(message);
     }
 

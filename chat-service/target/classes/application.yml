@@ -41,6 +41,8 @@ spring:
 
 rocketmq:
   name-server: localhost:9876
+elasticsearch:
+  url: localhost:9200
 
 mybatis:
   mapper-locations: classpath:mapper/*.xml
