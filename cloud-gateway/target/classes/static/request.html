@@ -108,11 +108,8 @@
         $.ajax({
             url: serverUrl + "user-info/friend/agreeRequest",
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
             data: {
-                userId:$.cookie('userId'),
+                userId: window.localStorage.getItem("userId"),
                 addId: addId
             },
             async: true,
@@ -127,7 +124,7 @@
             url: serverUrl + "user-info/friend/refuseRequest",
             method: "POST",
             data: {
-                userId:$.cookie('userId'),
+                userId: window.localStorage.getItem("userId"),
                 addId: addId
             },
             async: true,

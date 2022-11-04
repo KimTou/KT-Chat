@@ -64,13 +64,46 @@
             <th>用户名</th>
             <th>当前状态</th>
             <th>进入聊天</th>
-            <th>操作</th>
+            <th>查看共同好友</th>
+            <th>删除好友</th>
         </tr>
         <tbody id="t_body">
 
         </tbody>
 
     </table>
+
+    <br><hr>
+
+
+    <h2>共同好友</h2><br>
+
+    <table border="1" class="table table-bordered table-hover">
+        <tr class="success">
+            <th>用户名</th>
+            <th>进入聊天</th>
+        </tr>
+        <tbody id="t_body2">
+
+        </tbody>
+    </table>
+
+    <br><hr>
+
+    <h2>可能认识的人</h2><br>
+    <button type="button" class="btn btn-success" onclick="findRecommendFriend()">换一批</button>
+    <br><br>
+    <table border="1" class="table table-bordered table-hover">
+        <tr class="warning">
+            <th>用户名</th>
+            <th>添加好友</th>
+        </tr>
+        <tbody id="t_body3">
+
+        </tbody>
+    </table>
+
+    <br><hr><br><br><br><br><br>
 </div>
 
 <script>
@@ -103,12 +136,14 @@
                         }
                         table +=
                             "<td><button class='btn btn-default btn-primary' onclick='tochat(id)' id='" + list[i].user.userId + "'>进入聊天</button>&nbsp;" +
+                            "<td><button class='btn btn-default btn-success' onclick='findMutualFriend(id)' id='" + list[i].user.userId + "'>查看共同好友</button>&nbsp;" +
                             "<td><button class='btn btn-default btn-danger' onclick='deleteFriend(id)' id='" + list[i].user.userId + "'>删除好友</button>&nbsp;" +
                             "</tr>";
                         $("#t_body").html(table);
                         $("#lis").html(li);
                     })
                 }
+                findRecommendFriend();
             }
         })
     }
@@ -121,6 +156,64 @@
     function tochat(boxId){
         $(window).attr("location", serverUrl + "function.html?"+"type=2&boxId="+boxId) ;
     }
+
+    //查看共同好友
+    function findMutualFriend(friendId){
+        $.ajax({
+            url: serverUrl + "user-info/friend/findMutualFriend",
+            method: "GET",
+            data: {
+                userId: window.localStorage.getItem("userId"),
+                friendId: friendId
+            },
+            async: true,
+            success: function (data) {
+                if (data.data != null) {
+                    var table = "";
+                    var li = "";
+                    var list = data.data;
+                    $.each(list,function (i,rs) {
+                        table += "<tr>" +
+                            "<td>" + list[i].userName + "</td>";
+                        table +=
+                            "<td><button class='btn btn-default btn-primary' onclick='tochat(id)' id='" + list[i].userId + "'>进入聊天</button>&nbsp;" +
+                            "</tr>";
+                        $("#t_body2").html(table);
+                        $("#lis").html(li);
+                    })
+                }
+            }
+        })
+    }
+
+    //好友推荐
+    function findRecommendFriend(){
+        $.ajax({
+            url: serverUrl + "user-info/friend/findRecommendFriend",
+            method: "GET",
+            data: {
+                userId: window.localStorage.getItem("userId")
+            },
+            async: true,
+            success: function (data) {
+                if (data.data != null) {
+                    var table = "";
+                    var li = "";
+                    var list = data.data;
+                    $.each(list,function (i,rs) {
+                        table += "<tr>" +
+                            "<td>" + list[i].userName + "</td>";
+                        table +=
+                            "<td><button class='btn btn-default btn-primary' onclick='addFriend2(id)' id='" + list[i].userName + "'>添加好友</button>&nbsp;" +
+                            "</tr>";
+                        $("#t_body3").html(table);
+                        $("#lis").html(li);
+                    })
+                }
+            }
+        })
+    }
+
 
     //删除好友
     function deleteFriend(friendId){
@@ -160,6 +253,25 @@
         })
     }
 
+    //添加好友2
+    function addFriend2(addUserName){
+        $.ajax({
+            url: serverUrl + "user-info/friend/addFriend",
+            method: "POST",
+            data: {
+                //userId:$.cookie('userId'),
+                userId: window.localStorage.getItem("userId")
+            },
+            async: true,
+            success: function (data) {
+                if(data.code==200){
+                    alert("已发送好友请求，请等待对方同意")
+                }else{
+                    alert(data.data)
+                }
+            }
+        })
+    }
 
 </script>
 

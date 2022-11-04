@@ -28,6 +28,18 @@ public class FriendController {
     @Autowired
     private UserMapper userMapper;
 
+    @ApiOperation("好友关系-共同好友")
+    @GetMapping("/findMutualFriend")
+    public ResultInfo<List<User>> findMutualFriend(Integer userId, Integer friendId) {
+        return friendService.findMutualFriend(userId, friendId);
+    }
+
+    @ApiOperation("好友关系-好友推荐")
+    @GetMapping("/findRecommendFriend")
+    public ResultInfo<List<User>> findRecommendFriend(Integer userId) {
+        return friendService.findRecommendFriend(userId);
+    }
+
     @GetMapping("/findUserByName")
     public ResultInfo<User> findUserByName(String userName){
         User user = userMapper.getUserByName(userName);

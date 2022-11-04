@@ -27,11 +27,11 @@
         select user_id from request where user_id = #{userId} and add_id = #{addId}
     </select>
 
-    <insert id="isFriend">
+    <select id="isFriend" resultType="java.lang.Integer">
         select user_id from friend where user_id = #{userId} and friend_id = #{addId}
         union
         select user_id from friend where user_id = #{addId} and friend_id = #{userId}
-    </insert>
+    </select>
 
     <delete id="deleteRequest">
         delete from request where user_id = #{userId} and add_id = #{addId}

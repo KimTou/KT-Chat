@@ -12,6 +12,10 @@ import java.util.List;
  */
 public interface FriendService {
 
+    ResultInfo<List<User>> findMutualFriend(Integer userId, Integer friendId);
+
+    ResultInfo<List<User>> findRecommendFriend(Integer userId);
+
     ResultInfo<List<UserVo>> findAllFriend(Integer userId);
 
     ResultInfo<?> addFriend(Integer userId, String addUserName);

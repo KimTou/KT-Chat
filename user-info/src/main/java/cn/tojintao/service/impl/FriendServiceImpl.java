@@ -8,11 +8,12 @@ import cn.tojintao.model.entity.User;
 import cn.tojintao.model.vo.UserVo;
 import cn.tojintao.service.FriendService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @author cjt
@@ -25,6 +26,46 @@ public class FriendServiceImpl implements FriendService {
     private FriendMapper friendMapper;
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
+
+    private static final String FRIEND_RELATION = "friend:relation:";
+    private static final String FRIEND_RECOMMEND = "friend:recommend:";
+    private static final String ONLINE_USER = "online_user";
+
+    /**
+     * 好友关系-共同好友
+     */
+    @Override
+    public ResultInfo<List<User>> findMutualFriend(Integer userId, Integer friendId) {
+        Set<String> intersect = redisTemplate.opsForSet().intersect(FRIEND_RELATION + userId, FRIEND_RELATION + friendId);
+        System.out.println("共同好友" + intersect);
+        List<Integer> friendIds = intersect.stream().map(Integer::valueOf).collect(Collectors.toList());
+        List<User> friends = userMapper.getUserByIdList(friendIds);
+        return ResultInfo.success(CodeEnum.SUCCESS, friends);
+    }
+
+    /**
+     * 好友关系-好友推荐
+     */
+    @Override
+    public ResultInfo<List<User>> findRecommendFriend(Integer userId) {
+        if (!redisTemplate.hasKey(FRIEND_RECOMMEND + userId)) {
+            List<Integer> allFriendId = friendMapper.findAllFriendId(userId);
+            Set<String> difference = new HashSet<>();
+            for (Integer friendId : allFriendId) {
+                Set<String> set = redisTemplate.opsForSet().difference(FRIEND_RELATION + friendId, FRIEND_RELATION + userId);
+                difference.addAll(set);
+            }
+            redisTemplate.opsForSet().add(FRIEND_RECOMMEND + userId,
+                    difference.toArray(new String[difference.size()]));
+            redisTemplate.expire(FRIEND_RECOMMEND + userId, 1, TimeUnit.DAYS);
+        }
+        List<String> objects = redisTemplate.opsForSet().randomMembers(FRIEND_RECOMMEND + userId, 5);
+        List<Integer> friendIds = objects.stream().map(Integer::valueOf).collect(Collectors.toList());
+        List<User> userList = userMapper.getUserByIdList(friendIds);
+        return ResultInfo.success(CodeEnum.SUCCESS, userList);
+    }
 
     /**
      * 获取所有好友
@@ -39,6 +80,8 @@ public class FriendServiceImpl implements FriendService {
         for(User user: friendList){
             UserVo userVo = new UserVo();
             userVo.setUser(user);
+            Boolean status = redisTemplate.opsForSet().isMember(ONLINE_USER, String.valueOf(user.getUserId()));
+            userVo.setStatus(Boolean.TRUE.equals(status));
             allFriendVo.add(userVo);
         }
         return ResultInfo.success(CodeEnum.SUCCESS, allFriendVo);
@@ -98,8 +141,14 @@ public class FriendServiceImpl implements FriendService {
             return ResultInfo.success(CodeEnum.SUCCESS);
         }
         friendMapper.beFriend(userId, addId);
+        beFriendToRedis(userId, addId); //同步至Redis
         friendMapper.deleteRequest(userId, addId);
         return ResultInfo.success(CodeEnum.SUCCESS);
+    }
+
+    private void beFriendToRedis(Integer userId, Integer addId) {
+        redisTemplate.opsForSet().add(FRIEND_RELATION + userId, String.valueOf(addId));
+        redisTemplate.opsForSet().add(FRIEND_RELATION + addId, String.valueOf(userId));
     }
 
     /**
@@ -123,6 +172,12 @@ public class FriendServiceImpl implements FriendService {
     @Override
     public ResultInfo<?> deleteFriend(Integer userId, Integer friendId) {
         friendMapper.deleteFriend(userId, friendId);
+        deleteFriendToRedis(userId, friendId); //同步至Redis
         return ResultInfo.success(CodeEnum.SUCCESS);
+    }
+
+    private void deleteFriendToRedis(Integer userId, Integer friendId) {
+        redisTemplate.opsForSet().remove(FRIEND_RELATION + userId, String.valueOf(friendId));
+        redisTemplate.opsForSet().remove(FRIEND_RELATION + friendId, String.valueOf(userId));
     }
 }
