@@ -118,7 +118,7 @@ public class ChatServiceImpl implements ChatService {
         chatMapper.saveMessage(tableNum, messageVo);
 
         MessageEntity messageEntity = JSON.parseObject(JSON.toJSONString(messageVo), MessageEntity.class);
-        messageRepository.save(messageEntity); //双写至ES
+        messageRepository.save(messageEntity); //双写至ES（更好的方式是利用canal异步同步至ES）
         return ResultInfo.success(CodeEnum.SUCCESS, messageVo);
     }
 

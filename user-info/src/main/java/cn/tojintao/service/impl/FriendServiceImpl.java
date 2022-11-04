@@ -149,6 +149,8 @@ public class FriendServiceImpl implements FriendService {
     private void beFriendToRedis(Integer userId, Integer addId) {
         redisTemplate.opsForSet().add(FRIEND_RELATION + userId, String.valueOf(addId));
         redisTemplate.opsForSet().add(FRIEND_RELATION + addId, String.valueOf(userId));
+        redisTemplate.delete(FRIEND_RECOMMEND + userId);
+        redisTemplate.delete(FRIEND_RECOMMEND + addId);
     }
 
     /**
@@ -179,5 +181,7 @@ public class FriendServiceImpl implements FriendService {
     private void deleteFriendToRedis(Integer userId, Integer friendId) {
         redisTemplate.opsForSet().remove(FRIEND_RELATION + userId, String.valueOf(friendId));
         redisTemplate.opsForSet().remove(FRIEND_RELATION + friendId, String.valueOf(userId));
+        redisTemplate.delete(FRIEND_RECOMMEND + userId);
+        redisTemplate.delete(FRIEND_RECOMMEND + friendId);
     }
 }
