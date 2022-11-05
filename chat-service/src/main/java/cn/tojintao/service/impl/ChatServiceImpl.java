@@ -172,7 +172,7 @@ public class ChatServiceImpl implements ChatService {
             boxVoList.add(boxVo);
         }
         //获取群聊
-        List<Group> allGroup = userInfoService.getAllGroup(userId).getData();
+        List<Group> allGroup = getAllGroup(userId).getData();
         for (Group group : allGroup){
             BoxVo boxVo = new BoxVo();
             boxVo.setGroup(group);

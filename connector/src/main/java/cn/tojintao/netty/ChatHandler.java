@@ -2,6 +2,7 @@ package cn.tojintao.netty;
 
 import cn.tojintao.common.ChatTypeEnum;
 import cn.tojintao.common.MsgActionEnum;
+import cn.tojintao.model.entity.Message;
 import cn.tojintao.model.protocol.ChatMsg;
 import cn.tojintao.model.protocol.DataContent;
 import cn.tojintao.service.MsgService;
@@ -15,11 +16,13 @@ import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.util.concurrent.GlobalEventExecutor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author cjt
  * @date 2022/5/4 21:22
  */
+@Slf4j
 public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
 
     /**
@@ -43,34 +46,36 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
             UserChannelRelation.put(ctx.channel(), userId);
             RedisService redisService = SpringUtil.getBean(RedisService.class);
             redisService.online(userId);    //用户上线，更新用户所在netty节点
-            System.out.println("用户id:" + userId + ", channel:" + UserChannelRelation.getChannel(userId));
+            log.info("用户id:" + userId + ", channel:" + UserChannelRelation.getChannel(userId));
         } else if (action.equals(MsgActionEnum.CHAT.type)) { //聊天行为
             Integer senderId = chatMsg.getSenderId();
             Integer receiverId = chatMsg.getReceiverId();
             String message = chatMsg.getMessage();
             Integer type = chatMsg.getType();
+            RedisService redisService = SpringUtil.getBean(RedisService.class);
+            if (redisService.isBan(senderId)) return; //禁言
             MsgService msgService = SpringUtil.getBean(MsgService.class);
             if (type.equals(ChatTypeEnum.GROUP.getType())) {
-                System.out.println("senderId:" + senderId + ",sendGroupMessage:" + message);
+                log.info("senderId:" + senderId + ",sendGroupMessage:" + message);
                 msgService.sendGroupMessage(senderId, receiverId, message);
             } else if (type.equals(ChatTypeEnum.PERSONAL.getType())) {
-                System.out.println("senderId:" + senderId + ",sendMessage:" + message);
+                log.info("senderId:" + senderId + ",sendMessage:" + message);
                 msgService.sendMessage(senderId, receiverId, message);
             }
         } else if (action.equals(MsgActionEnum.KEEPALIVE.type)) {
-            System.out.println("收到来自channel 为【" + channel + "】的心跳包");
+            log.info("收到来自channel为【" + channel + "】的心跳包");
         }
     }
 
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
-        System.out.println("客户端连接：channel id 为：" + ctx.channel().id().asLongText());
+        log.info("客户端连接：channel id 为：" + ctx.channel().id().asLongText());
         userClients.add(ctx.channel());
     }
 
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
-        System.out.println("客户端断开连接：channel id 为：" + ctx.channel().id().asLongText());
+        log.info("客户端断开连接：channel id 为：" + ctx.channel().id().asLongText());
         //移除Redis状态信息
         RedisService redisService = SpringUtil.getBean(RedisService.class);
         redisService.offline(UserChannelRelation.getUserByChannel(ctx.channel()));
@@ -80,7 +85,7 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        cause.printStackTrace();
+        log.debug(cause.getMessage());
         //移除Redis状态信息
         RedisService redisService = SpringUtil.getBean(RedisService.class);
         redisService.offline(UserChannelRelation.getUserByChannel(ctx.channel()));

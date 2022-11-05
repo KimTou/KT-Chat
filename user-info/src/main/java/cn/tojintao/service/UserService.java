@@ -26,4 +26,6 @@ public interface UserService {
     ResultInfo<List<Integer>> getGroupUser(Integer groupId);
 
     ResultInfo<Group> getGroupById(Integer groupId);
+
+    ResultInfo<String> isBan(Integer userId);
 }

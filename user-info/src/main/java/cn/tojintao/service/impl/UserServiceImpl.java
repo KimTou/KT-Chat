@@ -7,10 +7,10 @@ import cn.tojintao.model.dto.ResultInfo;
 import cn.tojintao.model.entity.Group;
 import cn.tojintao.model.entity.User;
 import cn.tojintao.service.UserService;
-import cn.tojintao.common.UserSupport;
 import cn.tojintao.util.TokenUtil;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,6 +23,9 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
+    private static final String BAN_USER = "ban_user:";
 
     /**
      * 登录
@@ -90,5 +93,15 @@ public class UserServiceImpl implements UserService {
     public ResultInfo<Group> getGroupById(Integer groupId) {
         Group group = userMapper.getGroupById(groupId);
         return ResultInfo.success(CodeEnum.SUCCESS, group);
+    }
+
+    @Override
+    public ResultInfo<String> isBan(Integer userId) {
+        Boolean result = redisTemplate.hasKey(BAN_USER + userId);
+        if (Boolean.TRUE.equals(result)) {
+            return ResultInfo.error(CodeEnum.FORBIDDEN);
+        } else {
+            return ResultInfo.success(CodeEnum.SUCCESS);
+        }
     }
 }

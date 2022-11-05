@@ -16,9 +16,9 @@
     <form class="form-horizontal" method="post">
 
         <div class="form-group">
-            <label for="userName" class="col-sm-3 control-label">用户名</label>
+            <label for="name" class="col-sm-3 control-label">管理员名</label>
             <div class="col-xs-6">
-                <input type="text" class="form-control" id="userName" name="userName" placeholder="用户名">
+                <input type="text" class="form-control" id="name" name="name" placeholder="管理员名">
             </div>
         </div>
         <br><br>
@@ -45,7 +45,7 @@
             method: "POST",
             contentType: "application/x-www-form-urlencoded",
             data: {
-                userName: document.getElementById('userName').value,
+                name: document.getElementById('name').value,
                 password: document.getElementById('password').value,
             },
             async: true,
@@ -56,9 +56,7 @@
                     window.localStorage.setItem("id", data.data.admin.id);
                     window.localStorage.setItem("name", data.data.admin.name);
                     alert(data.msg + "\n欢迎进入MyChat:" + data.data.admin.name);
-                    //$(window).attr("location", serverUrl + "function.html?"+"type=0&boxId=0");
-
-
+                    $(window).attr("location", serverUrl + "manage.html");
                 }
                 else {
                     alert(data.msg);

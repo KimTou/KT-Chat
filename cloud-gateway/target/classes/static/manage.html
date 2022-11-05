@@ -1,0 +1,180 @@
+<html lang="en">
+<head>
+    <title>管理员界面</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/jquery.cookie.min.js"></script>
+</head>
+<body onload="refresh()">
+
+<div class="container">
+
+    <h2>用户列表</h2><br>
+
+    <table border="1" class="table table-bordered table-hover">
+
+        <tr class="info">
+            <th>用户id</th>
+            <th>用户名</th>
+            <th>当前状态</th>
+            <th>禁言处理</th>
+            <th>禁言解封</th>
+        </tr>
+        <tbody id="t_body">
+
+        </tbody>
+
+    </table>
+
+    <br><hr>
+
+    <h2>群组列表</h2><br>
+
+    <table border="1" class="table table-bordered table-hover">
+
+        <tr class="info">
+            <th>群组id</th>
+            <th>群组名</th>
+            <th>删除群组</th>
+        </tr>
+        <tbody id="t_body2">
+
+        </tbody>
+
+    </table>
+
+</div>
+
+<script>
+    let serverUrl = 'http://localhost:8080/'
+
+    function refresh(){
+        $.ajax({
+            url: serverUrl + "user-info/admin/getAllUser",
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            data: {},
+            async: true,
+            success: function (data) {
+                if (data.data != null) {
+                    var table = "";
+                    var li = "";
+                    var list = data.data;
+                    $.each(list,function (i,rs) {
+                        table += "<tr>" +
+                            "<td>" + list[i].user.userId + "</td>";
+                        table += "<td>" + list[i].user.userName + "</td>";
+                        if(list[i].status){
+                            table += "<td>在线状态</td>";
+                        }else{
+                            table += "<td>离线状态</td>";
+                        }
+                        table +=
+                            "<td><button class='btn btn-default btn-danger' onclick='banUser(id)' id='" + list[i].user.userId + "'>禁言处理</button>&nbsp;" +
+                            "<td><button class='btn btn-default btn-success' onclick='unBan(id)' id='" + list[i].user.userId + "'>禁言解封</button>&nbsp;" +
+                            "</tr>";
+                        $("#t_body").html(table);
+                        $("#lis").html(li);
+                    })
+                }
+                refresh2();
+            }
+        })
+    }
+
+    //禁言处理
+    function banUser(userId){
+        //第一个参数是提示文字，第二个参数是文本框中默认的内容
+        let days =prompt("请输入禁言天数", "");
+        if(days === "null"){
+            return;
+        }
+
+        $.ajax({
+            url: serverUrl + "user-info/admin/banUser",
+            method: "POST",
+            data: {
+                userId: userId,
+                days: days
+            },
+            async: true,
+            success: function (data) {
+                if (data.code == 200) {
+                    alert("禁言成功，解封时间:" + data.data);
+                } else {
+                    alert("禁言失败");
+                }
+            }
+        })
+    }
+
+    //禁言解封
+    function unBan(userId){
+        $.ajax({
+            url: serverUrl + "user-info/admin/unBan",
+            method: "POST",
+            data: {
+                userId: userId
+            },
+            async: true,
+            success: function (data) {
+                if (data.code == 200) {
+                    alert("禁言解封成功");
+                } else {
+                    alert("解封失败");
+                }
+            }
+        })
+    }
+
+
+    function refresh2(){
+        $.ajax({
+            url: serverUrl + "user-info/admin/getAllGroup",
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            data: {},
+            async: true,
+            success: function (data) {
+                if (data.data != null) {
+                    var table = "";
+                    var li = "";
+                    var list = data.data;
+                    $.each(list,function (i,rs) {
+                        table += "<tr>" +
+                            "<td>" + list[i].groupId + "</td>";
+                        table += "<td>" + list[i].groupName + "</td>";
+                        table +=
+                            "<td><button class='btn btn-default btn-danger' onclick='deleteGroup(id)' id='" + list[i].groupId + "'>删除群组</button>&nbsp;" +
+                            "</tr>";
+                        $("#t_body2").html(table);
+                        $("#lis").html(li);
+                    })
+                }
+            }
+        })
+    }
+
+    function deleteGroup(groupId){
+        $.ajax({
+            url: serverUrl + "user-info/admin/deleteGroup",
+            method: "POST",
+            data: {
+                groupId : groupId
+            },
+            async: true,
+            success: function (data) {
+                refresh2();
+            }
+        })
+    }
+</script>
+
+</body>
+</html>

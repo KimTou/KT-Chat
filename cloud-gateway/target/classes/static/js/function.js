@@ -249,6 +249,7 @@ function sendGroup(groupId) {
         websocket.send(JSON.stringify(data));
         show(data.chatMsg);
         document.getElementById('message').value = '';
+        isBan(userId);
     }else{
         alert("输入框为空");
     }
@@ -278,9 +279,31 @@ function sendOne(friendId) {
         websocket.send(JSON.stringify(data));
         getMessage(data.chatMsg);
         document.getElementById('message').value = '';
+        isBan(userId);
     }else{
         alert("输入框为空");
     }
+}
+
+function isBan(userId) {
+    $.ajax({
+        url: serverUrl + "user-info/user/isBan",
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        data: {
+            userId: userId
+        },
+        async: true,
+        success: function (data) {
+            if (data.code === 200) {
+
+            } else {
+                alert("您已被禁言");
+            }
+        }
+    })
 }
 
 function Map2Json(map) {

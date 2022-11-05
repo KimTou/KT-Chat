@@ -13,6 +13,7 @@ import cn.tojintao.util.DateUtil;
 import com.alibaba.fastjson.JSON;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,6 +30,7 @@ import java.util.Set;
  * @author cjt
  * @date 2022/6/11 23:57
  */
+@Slf4j
 @Component
 public class MsgService {
     @Autowired
@@ -80,7 +82,7 @@ public class MsgService {
     public void transfer(Integer receiverId, MessageVo messageVo) {
         String receiverUrl = redisService.getConnectorUrl(receiverId);
         if (receiverUrl == null) {
-            System.out.println("离线消息:" + messageVo);
+            log.info("离线消息:" + messageVo);
         } else if (this.connectorUrl.equals(receiverUrl)) { //判断目标用户是否在本机
             //在本机: 直接推送
             push(receiverId, messageVo);
@@ -101,7 +103,7 @@ public class MsgService {
             if (receiverChannel != null) {  //判断目标用户是否在线
                 receiverChannel.writeAndFlush(new TextWebSocketFrame(JSON.toJSONString(messageVo)));
             } else {
-                System.out.println("离线消息:" + messageVo);
+                log.info("离线消息:" + messageVo);
             }
         }
     }
@@ -143,7 +145,7 @@ public class MsgService {
         for (Integer receiverId : userIdList) {
             String receiverUrl = redisService.getConnectorUrl(receiverId);
             if (receiverUrl == null) {
-                System.out.println("离线消息:" + groupMessage);
+                log.info("离线消息:" + groupMessage);
             } else if (this.connectorUrl.equals(receiverUrl)) { //判断目标用户是否在本机
                 //在本机: 直接推送
                 push(receiverId, groupMessage);

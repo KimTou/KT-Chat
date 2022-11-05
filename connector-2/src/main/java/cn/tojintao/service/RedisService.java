@@ -14,14 +14,14 @@ import java.util.Set;
 @Component
 public class RedisService {
 
-    private static final String RELATION_KEY = "user:connector:relation";
-    private static final String ONLINE_USER = "online_user";
-
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
-
     @Value("${netty.connector-url}")
     public String connectorUrl;
+
+    private static final String RELATION_KEY = "user:connector:relation";
+    private static final String ONLINE_USER = "online_user";
+    private static final String BAN_USER = "ban_user:";
 
     public void online(Integer userId) {
         redisTemplate.opsForHash().put(RELATION_KEY, String.valueOf(userId), connectorUrl);
@@ -42,5 +42,9 @@ public class RedisService {
             redisTemplate.opsForHash().delete(RELATION_KEY, userId);
             redisTemplate.opsForSet().remove(ONLINE_USER, userId);
         }
+    }
+
+    public boolean isBan(Integer userId) {
+        return Boolean.TRUE.equals(redisTemplate.hasKey(BAN_USER + userId));
     }
 }

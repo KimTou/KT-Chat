@@ -1,6 +1,5 @@
 package cn.tojintao.controller;
 
-import cn.tojintao.common.CodeEnum;
 import cn.tojintao.model.dto.ResultInfo;
 import cn.tojintao.model.entity.Group;
 import cn.tojintao.model.entity.User;
@@ -30,10 +29,8 @@ public class UserController {
 
     @ApiOperation(value = "用户登录")
     @PostMapping("/login")
-    public ResultInfo<JSONObject> login(String userName,
-                                        String password) throws Exception {
-        ResultInfo<JSONObject> resultInfo = userService.login(userName, password);
-        return resultInfo;
+    public ResultInfo<JSONObject> login(String userName, String password) throws Exception {
+        return userService.login(userName, password);
     }
 
     @ApiOperation(value = "刷新token")
@@ -62,5 +59,10 @@ public class UserController {
     @GetMapping("/getGroupById")
     public ResultInfo<Group> getGroupById(Integer groupId) {
         return userService.getGroupById(groupId);
+    }
+
+    @GetMapping("/isBan")
+    public ResultInfo<String> isBan(Integer userId) {
+        return userService.isBan(userId);
     }
 }
