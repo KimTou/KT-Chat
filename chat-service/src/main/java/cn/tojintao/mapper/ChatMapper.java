@@ -29,11 +29,13 @@ public interface ChatMapper {
 
     List<Group> getAllGroup(Integer userId);
 
-    Integer insertGroup(String groupName);
+    Integer insertGroup(Group group);
 
     void outGroup(@Param("userId") Integer userId, @Param("groupId") Integer groupId);
 
     void intoGroup(@Param("userId") Integer userId, @Param("groupId") Integer groupId);
+
+    List<Integer> getUserGroupIds(@Param("userId") Integer userId);
 
     Group findGroupByName(String groupName);
 

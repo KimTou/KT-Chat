@@ -7,6 +7,7 @@ import cn.tojintao.model.dto.ResultInfo;
 import cn.tojintao.model.entity.User;
 import cn.tojintao.model.vo.UserVo;
 import cn.tojintao.service.FriendService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -95,14 +96,21 @@ public class FriendServiceImpl implements FriendService {
      */
     @Override
     public ResultInfo<?> addFriend(Integer userId, String addUserName) {
+        if (StringUtils.isBlank(addUserName)) {
+            return ResultInfo.error(CodeEnum.PARAM_PATTERN_INVALID, "用户名不能为空");
+        }
         User addUser = userMapper.getUserByName(addUserName);
-        if(addUser == null){
+        if (addUser == null){
             return ResultInfo.error(CodeEnum.PARAM_NOT_IDEAL, "未查找到该用户");
         }else{
             //判断是否已发送添加好友请求
-            if(friendMapper.requestIsExist(userId, addUser.getUserId()) != null){
+            if (friendMapper.requestIsExist(userId, addUser.getUserId()) != null){
                 return ResultInfo.error(CodeEnum.BAD_REQUEST, "你已发送过添加请求，请等待对方回应");
-            }else{
+            } else if (friendMapper.isFriend(userId, addUser.getUserId()) != null) {
+                return ResultInfo.error(CodeEnum.BAD_REQUEST, "已是好友，无需重复添加");
+            } else if (userId.equals(addUser.getUserId())) {
+                return ResultInfo.error(CodeEnum.BAD_REQUEST, "请勿添加自己为好友");
+            } else{
                 friendMapper.insertRequest(userId, addUser.getUserId());
                 return ResultInfo.success(CodeEnum.SUCCESS);
             }

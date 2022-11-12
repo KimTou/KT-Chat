@@ -39,13 +39,17 @@
         where gu.user_id = #{userId}
     </select>
 
-    <insert id="insertGroup">
+    <insert id="insertGroup" parameterType="cn.tojintao.model.entity.Group" useGeneratedKeys="true" keyProperty="groupId" keyColumn="group_id">
         insert into `group`(group_name) values (#{groupName})
     </insert>
 
     <insert id="intoGroup">
         insert into `group_user`(group_id, user_id) values (#{groupId}, #{userId})
     </insert>
+
+    <select id="getUserGroupIds" resultType="java.lang.Integer">
+        select * from `group_user` where user_id = #{userId}
+    </select>
 
     <delete id="outGroup">
         delete from group_user where group_id = #{groupId} and user_id = #{userId}

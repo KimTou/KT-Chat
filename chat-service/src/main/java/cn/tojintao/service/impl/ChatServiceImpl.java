@@ -17,6 +17,7 @@ import cn.tojintao.service.SnowflakeService;
 import cn.tojintao.feign.UserInfoService;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.log4j.Log4j;
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -201,15 +202,17 @@ public class ChatServiceImpl implements ChatService {
      */
     @Override
     public ResultInfo<?> addGroup(Integer userId, String groupName) {
-        if(groupName == null || groupName.length() == 0){
-            return ResultInfo.error(CodeEnum.NULL_PARAM);
+        if(StringUtils.isBlank(groupName)){
+            return ResultInfo.error(CodeEnum.NULL_PARAM, "群聊名不能为空");
         }
         //群聊不能同名
         if(chatMapper.findGroupByName(groupName) != null){
-            return ResultInfo.error(CodeEnum.BAD_REQUEST);
+            return ResultInfo.error(CodeEnum.BAD_REQUEST, "群组已存在");
         }
-        Integer groupId = chatMapper.insertGroup(groupName);
-        chatMapper.intoGroup(userId, groupId);
+        Group group = new Group();
+        group.setGroupName(groupName);
+        chatMapper.insertGroup(group);
+        chatMapper.intoGroup(userId, group.getGroupId());
         return ResultInfo.success(CodeEnum.SUCCESS, "新建成功");
     }
 
@@ -233,12 +236,16 @@ public class ChatServiceImpl implements ChatService {
      */
     @Override
     public ResultInfo<?> intoGroup(Integer userId, String groupName) {
-        if(groupName == null || groupName.length() == 0){
-            return ResultInfo.error(CodeEnum.NULL_PARAM, "参数错误");
+        if(StringUtils.isBlank(groupName)){
+            return ResultInfo.error(CodeEnum.NULL_PARAM, "群聊名不能为空");
         }
         Group group = chatMapper.findGroupByName(groupName);
-        if(group == null){
+        if (group == null){
             return ResultInfo.error(CodeEnum.BAD_REQUEST, "群组不存在");
+        }
+        List<Integer> userGroupIds = chatMapper.getUserGroupIds(userId);
+        if (userGroupIds.contains(group.getGroupId())) {
+            return ResultInfo.error(CodeEnum.BAD_REQUEST, "已加入该群聊，无需重复添加");
         }
         chatMapper.intoGroup(userId, group.getGroupId());
         return ResultInfo.success(CodeEnum.SUCCESS, "加入成功");
@@ -246,6 +253,9 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public ResultInfo<List<Map<String, Object>>> searchMessage(Integer userId, String keyword) throws IOException {
+        if (StringUtils.isBlank(keyword)) return ResultInfo.error(CodeEnum.NULL_PARAM);
+        if (keyword.length() > 100) return ResultInfo.error(CodeEnum.TOO_LONG);
+
         List<Group> allGroup = userInfoService.getAllGroup(userId).getData();
         List<Integer> groupIds = allGroup.stream().map(Group::getGroupId).collect(Collectors.toList());
 

@@ -245,7 +245,7 @@ function sendGroup(groupId) {
             type: 1
         }
     }
-    if(data.message != '') {
+    if(data.message !== '') {
         websocket.send(JSON.stringify(data));
         show(data.chatMsg);
         document.getElementById('message').value = '';

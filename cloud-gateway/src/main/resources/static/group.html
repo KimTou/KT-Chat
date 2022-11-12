@@ -152,7 +152,11 @@
             },
             async: true,
             success: function (data) {
-                refresh();
+                if(data.code==200){
+                    refresh();
+                }else{
+                    alert(data.data)
+                }
             }
         })
     }
@@ -160,10 +164,6 @@
     function addGroup(){
         //第一个参数是提示文字，第二个参数是文本框中默认的内容
         let groupName =prompt("请输入群聊名称","");
-
-        if(groupName === "null"){
-            return;
-        }
 
         $.ajax({
             url: serverUrl + "chat/addGroup",
@@ -175,7 +175,11 @@
             },
             async: true,
             success: function (data) {
-                refresh();
+                if(data.code==200){
+                    refresh();
+                }else{
+                    alert(data.data)
+                }
             }
         })
     }

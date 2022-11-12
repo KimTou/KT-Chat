@@ -26,7 +26,8 @@ public enum CodeEnum {
     PARAM_NOT_IDEAL(10003,"未查找到信息"),
     FILE_NOT_SUPPORT(10004,"文件格式错误"),
     FILE_UPLOAD_FAIL(10005,"文件上传失败"),
-    OPEN_RED_PACKET_FAIL(10006, "抢红包失败");
+    OPEN_RED_PACKET_FAIL(10006, "抢红包失败"),
+    TOO_LONG(10007, "内容过长");
 
     /**
      * 状态码

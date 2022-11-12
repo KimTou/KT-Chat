@@ -245,7 +245,7 @@ function sendGroup(groupId) {
             type: 1
         }
     }
-    if(data.message != '') {
+    if(data.message !== '') {
         websocket.send(JSON.stringify(data));
         show(data.chatMsg);
         document.getElementById('message').value = '';
@@ -300,7 +300,7 @@ function isBan(userId) {
             if (data.code === 200) {
 
             } else {
-                alert("您已被禁言");
+                alert("您已被禁言，对方无法接收消息");
             }
         }
     })

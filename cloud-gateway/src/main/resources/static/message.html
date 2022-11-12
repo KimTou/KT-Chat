@@ -97,27 +97,31 @@
             },
             async: true,
             success: function (data) {
-                if (data.data != null) {
-                    var table = "";
-                    var li = "";
-                    var list = data.data;
-                    $.each(list,function (i,rs) {
-                        table += "<tr>" +
-                            "<td>" + list[i].userName + "</td>";
-                        if(list[i].groupId){
-                            table += "<td>群聊</td>";
-                            table += "<td>" + list[i].groupName + "</td>";
-                        }else{
-                            table += "<td>私聊</td>";
-                            table += "<td></td>";
-                        }
-                        table +=
-                            "<td>" + list[i].content + "</td>" +
-                            "<td>" + formatDate(list[i].gmtCreate) + "</td>" +
-                            "</tr>";
-                        $("#t_body").html(table);
-                        $("#lis").html(li);
-                    })
+                if (data.code == 200) {
+                    if (data.data != null) {
+                        var table = "";
+                        var li = "";
+                        var list = data.data;
+                        $.each(list,function (i,rs) {
+                            table += "<tr>" +
+                                "<td>" + list[i].userName + "</td>";
+                            if(list[i].groupId){
+                                table += "<td>群聊</td>";
+                                table += "<td>" + list[i].groupName + "</td>";
+                            }else{
+                                table += "<td>私聊</td>";
+                                table += "<td></td>";
+                            }
+                            table +=
+                                "<td>" + list[i].content + "</td>" +
+                                "<td>" + formatDate(list[i].gmtCreate) + "</td>" +
+                                "</tr>";
+                            $("#t_body").html(table);
+                            $("#lis").html(li);
+                        })
+                    }
+                } else {
+                    alert(data.msg);
                 }
             }
         })
