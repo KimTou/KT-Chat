@@ -31,3 +31,19 @@ rocketmq:
 netty:
   connector-url: localhost_8030
   port: 9000
+
+dubbo:
+  application:
+    name: connector-dubbo-service
+  protocol:
+    name: dubbo
+    port: 20890  # dubbo服务暴露的端口
+  registry:
+    protocol: nacos
+    address: 127.0.0.1:8848
+  config-center:
+    protocol: nacos
+    address: 127.0.0.1:8848
+  metadata-report:
+    protocol: nacos
+    address: 127.0.0.1:8848

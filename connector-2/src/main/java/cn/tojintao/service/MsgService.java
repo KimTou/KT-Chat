@@ -9,11 +9,15 @@ import cn.tojintao.model.entity.User;
 import cn.tojintao.model.vo.MessageVo;
 import cn.tojintao.netty.ChatHandler;
 import cn.tojintao.netty.UserChannelRelation;
+import cn.tojintao.rpc.PushService;
 import cn.tojintao.util.DateUtil;
 import com.alibaba.fastjson.JSON;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.dubbo.config.ReferenceConfig;
+import org.apache.dubbo.rpc.cluster.specifyaddress.Address;
+import org.apache.dubbo.rpc.cluster.specifyaddress.UserSpecifiedAddressUtil;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,7 +25,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -44,12 +47,11 @@ public class MsgService {
 
     @Value("${netty.connector-url}")
     public String connectorUrl;
-    private static final String PREFIX = "http://";
 
     /**
      * 私聊
      */
-    public void sendMessage(Integer senderId, Integer receiverId, String msg) throws IOException {
+    public void sendMessage(Integer senderId, Integer receiverId, String msg) {
         User user = userInfoService.findUserById(senderId).getData();
         Message message = new Message();
         message.setSender(senderId);
@@ -88,8 +90,18 @@ public class MsgService {
             push(receiverId, messageVo);
         } else {
             //不在本机: 转发消息
-            receiverUrl = PREFIX + receiverUrl.replace("_", ":") + "/push/pushMsg";
-            restTemplate.postForObject(receiverUrl, messageVo, String.class);
+            /*
+             //已废除（从HTTP调用转发改造成RPC调用转发）
+             receiverUrl = "http://" + receiverUrl.replace("_", ":") + "/push/pushMsg";
+             restTemplate.postForObject(receiverUrl, messageVo, String.class);
+            */
+            ReferenceConfig<PushService> referenceConfig = new ReferenceConfig<>();
+            PushService pushService = referenceConfig.get();
+            int dubboPort = Integer.parseInt(redisService.getDubboPort(receiverUrl));
+            //动态指定IP调用
+            UserSpecifiedAddressUtil.setAddress(new Address("192.168.223.1", dubboPort, true));
+            //使用rpc调用进行转发
+            pushService.pushMsg(messageVo);
         }
     }
 
@@ -111,7 +123,7 @@ public class MsgService {
     /**
      * 群聊
      */
-    public void sendGroupMessage(Integer senderId, Integer groupId, String msg) throws IOException {
+    public void sendGroupMessage(Integer senderId, Integer groupId, String msg) {
         User user = userInfoService.findUserById(senderId).getData();
         Group group = userInfoService.getGroupById(groupId).getData();
         GroupMessage groupMessage = new GroupMessage();
@@ -159,8 +171,17 @@ public class MsgService {
 
     public void transfer(Set<String> targetUrlSet, GroupMessage groupMessage) {
         for (String receiverUrl : targetUrlSet) {
-            receiverUrl = PREFIX + receiverUrl.replace("_", ":") + "/push/pushGroupMsg";
+            /*
+            receiverUrl = "http://" + receiverUrl.replace("_", ":") + "/push/pushGroupMsg";
             restTemplate.postForObject(receiverUrl, groupMessage, String.class);
+             */
+            ReferenceConfig<PushService> referenceConfig = new ReferenceConfig<>();
+            PushService pushService = referenceConfig.get();
+            int dubboPort = Integer.parseInt(redisService.getDubboPort(receiverUrl));
+            //动态指定IP调用
+            UserSpecifiedAddressUtil.setAddress(new Address("127.0.0.1", dubboPort, true));
+            //使用rpc调用进行转发
+            pushService.pushGroupMsg(groupMessage);
         }
     }
 

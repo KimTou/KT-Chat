@@ -13,9 +13,9 @@ spring:
         port: 9999   #指定和Sentinel控制台交互的端口
         dashboard: 127.0.0.1:8888  #Sentinel控制台服务地址
   redis:
-    host: 112.74.175.57
+    host: localhost
     port: 6379
-    password: Chen13058191889
+    password:
     database: 0
 
 #激活Sentinel对Feign的支持
@@ -31,3 +31,19 @@ rocketmq:
 netty:
   connector-url: localhost_8031
   port: 9001
+
+dubbo:
+  application:
+    name: connector-dubbo-service
+  protocol:
+    name: dubbo
+    port: 20891  # dubbo服务暴露的端口
+  registry:
+    protocol: nacos
+    address: 127.0.0.1:8848
+  config-center:
+    protocol: nacos
+    address: 127.0.0.1:8848
+  metadata-report:
+    protocol: nacos
+    address: 127.0.0.1:8848

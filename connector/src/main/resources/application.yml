@@ -13,9 +13,9 @@ spring:
         port: 9999   #指定和Sentinel控制台交互的端口
         dashboard: 127.0.0.1:8888  #Sentinel控制台服务地址
   redis:
-    host: 112.74.175.57
+    host: localhost
     port: 6379
-    password: Chen13058191889
+    password:
     database: 0
 
 #激活Sentinel对Feign的支持

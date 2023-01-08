@@ -28,6 +28,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -270,6 +271,7 @@ public class ChatServiceImpl implements ChatService {
             boolQueryBuilder.should(QueryBuilders.termQuery("groupId", groupId));
         }
         sourceBuilder.query(boolQueryBuilder);
+        sourceBuilder.sort("gmtCreate", SortOrder.DESC);
         sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
         searchRequest.source(sourceBuilder);
         SearchResponse searchResponse = restHighLevelClient.search(searchRequest);

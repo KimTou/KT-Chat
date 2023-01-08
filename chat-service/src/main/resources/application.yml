@@ -34,9 +34,9 @@ spring:
       useGlobalDataSourceStat: true
       connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=500
   redis:
-    host: 112.74.175.57
+    host: localhost
     port: 6379
-    password: Chen13058191889
+    password:
     database: 0
 
 rocketmq:

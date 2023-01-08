@@ -21,7 +21,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -44,12 +43,11 @@ public class MsgService {
 
     @Value("${netty.connector-url}")
     public String connectorUrl;
-    private static final String PREFIX = "http://";
 
     /**
      * 私聊
      */
-    public void sendMessage(Integer senderId, Integer receiverId, String msg) throws IOException {
+    public void sendMessage(Integer senderId, Integer receiverId, String msg) {
         User user = userInfoService.findUserById(senderId).getData();
         Message message = new Message();
         message.setSender(senderId);
@@ -88,7 +86,7 @@ public class MsgService {
             push(receiverId, messageVo);
         } else {
             //不在本机: 转发消息
-            receiverUrl = PREFIX + receiverUrl.replace("_", ":") + "/push/pushMsg";
+            receiverUrl = "http://" + receiverUrl.replace("_", ":") + "/push/pushMsg";
             restTemplate.postForObject(receiverUrl, messageVo, String.class);
         }
     }
@@ -111,7 +109,7 @@ public class MsgService {
     /**
      * 群聊
      */
-    public void sendGroupMessage(Integer senderId, Integer groupId, String msg) throws IOException {
+    public void sendGroupMessage(Integer senderId, Integer groupId, String msg) {
         User user = userInfoService.findUserById(senderId).getData();
         Group group = userInfoService.getGroupById(groupId).getData();
         GroupMessage groupMessage = new GroupMessage();
@@ -159,7 +157,7 @@ public class MsgService {
 
     public void transfer(Set<String> targetUrlSet, GroupMessage groupMessage) {
         for (String receiverUrl : targetUrlSet) {
-            receiverUrl = PREFIX + receiverUrl.replace("_", ":") + "/push/pushGroupMsg";
+            receiverUrl = "http://" + receiverUrl.replace("_", ":") + "/push/pushGroupMsg";
             restTemplate.postForObject(receiverUrl, groupMessage, String.class);
         }
     }
