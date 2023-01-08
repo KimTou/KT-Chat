@@ -47,3 +47,14 @@
 #### 群聊
 
 ![](https://cdn.tojintao.cn/群聊测试1.PNG)
+
+
+
+## 启动说明
+
+1. 启动本项目时，需提前启动 Nacos、RocketMQ、MySQL、Redis、ElasticSearch、Sentinal 实例。
+2. conntector 与 connector-2 这两个模块并不一样，connector-2 使用了 Dubbo 进行消息转发（实验阶段），而 connector 使用 Feign 进行 HTTP 调用转发消息。启动 connector 就行了。
+3. 每个服务都允许运行多个实例。
+
+
+
